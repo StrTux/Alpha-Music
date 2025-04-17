@@ -1,0 +1,5 @@
+/**
+ * hooks module
+ */
+
+export default {};

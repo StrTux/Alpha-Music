@@ -1,0 +1,5 @@
+/**
+ * modals module
+ */
+
+export default {};

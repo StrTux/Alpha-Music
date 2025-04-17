@@ -1,0 +1,5 @@
+/**
+ * auth module
+ */
+
+export default {};

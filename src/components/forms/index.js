@@ -1,0 +1,5 @@
+/**
+ * forms module
+ */
+
+export default {};

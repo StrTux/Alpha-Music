@@ -1,0 +1,5 @@
+/**
+ * details module
+ */
+
+export default {};

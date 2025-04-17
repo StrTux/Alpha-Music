@@ -1,0 +1,5 @@
+/**
+ * cards module
+ */
+
+export default {};

@@ -1,0 +1,5 @@
+/**
+ * player module
+ */
+
+export default {};

@@ -1,0 +1,920 @@
+{
+    "status": "Success",
+    "message": "✅ Search results fetched successfully",
+    "data": {
+        "total": 6,
+        "start": 1,
+        "results": [
+            {
+                "id": "fsBHCNNM",
+                "name": "Jaat Theme Song",
+                "subtitle": "Amrit Maan, Thaman S - Jaat (Original Motion Picture Soundtrack)",
+                "type": "song",
+                "url": "https://www.jiosaavn.com/song/jaat-theme-song/FhspeTd,eX4",
+                "image": "http://c.saavncdn.com/505/Jaat-Hindi-2025-20250410091040-500x500.jpg",
+                "language": "hindi",
+                "year": "2025",
+                "header_desc": "",
+                "play_count": "147039",
+                "explicit": false,
+                "list": "",
+                "list_type": "",
+                "list_count": "0",
+                "music": "Thaman S, Amrit Maan",
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "455627",
+                            "name": "Sunny Deol",
+                            "url": "https://www.jiosaavn.com/artist/sunny-deol-songs/OpniZFFn41o_",
+                            "role": "Starring",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Sunny_Deol_500x500.jpg"
+                        },
+                        {
+                            "id": "467134",
+                            "name": "Randeep Hooda",
+                            "url": "https://www.jiosaavn.com/artist/randeep-hooda-songs/5VL3Ku7temM_",
+                            "role": "Starring",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Randeep_Hooda_500x500.jpg"
+                        },
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "671774",
+                            "name": "Amrit Maan",
+                            "url": "https://www.jiosaavn.com/artist/amrit-maan-songs/ggj7NcJa2fk_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Amrit_Maan_002_20240514101546_500x500.jpg"
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "671774",
+                            "name": "Amrit Maan",
+                            "url": "https://www.jiosaavn.com/artist/amrit-maan-songs/ggj7NcJa2fk_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Amrit_Maan_002_20240514101546_500x500.jpg"
+                        }
+                    ]
+                },
+                "album": "Jaat (Original Motion Picture Soundtrack)",
+                "album_id": "63647757",
+                "album_url": "https://www.jiosaavn.com/album/jaat-original-motion-picture-soundtrack/fzVAtr8H7cg_",
+                "label": "Zee Music Company",
+                "label_url": "/label/zee-music-company-albums/",
+                "origin": "search",
+                "is_dolby_content": false,
+                "320kbps": true,
+                "download_url": [
+                    {
+                        "quality": "12kbps",
+                        "link": "http://aac.saavncdn.com/505/23a1640ba7ad55cce22a5da06abc2b38_12.mp4"
+                    },
+                    {
+                        "quality": "48kbps",
+                        "link": "http://aac.saavncdn.com/505/23a1640ba7ad55cce22a5da06abc2b38_48.mp4"
+                    },
+                    {
+                        "quality": "96kbps",
+                        "link": "http://aac.saavncdn.com/505/23a1640ba7ad55cce22a5da06abc2b38_96.mp4"
+                    },
+                    {
+                        "quality": "160kbps",
+                        "link": "http://aac.saavncdn.com/505/23a1640ba7ad55cce22a5da06abc2b38_160.mp4"
+                    },
+                    {
+                        "quality": "320kbps",
+                        "link": "http://aac.saavncdn.com/505/23a1640ba7ad55cce22a5da06abc2b38_320.mp4"
+                    }
+                ],
+                "duration": 202,
+                "rights": {
+                    "code": "0",
+                    "cacheable": "true",
+                    "delete_cached_object": "false",
+                    "reason": ""
+                },
+                "has_lyrics": false,
+                "lyrics_snippet": "",
+                "starred": false,
+                "release_date": "",
+                "triller_available": false,
+                "copyright_text": "© 2025 Zee Music Company",
+                "vcode": "010910443038638",
+                "vlink": "https://jiotunepreview.jio.com/content/Converted/010910442995173.mp3"
+            },
+            {
+                "id": "gJCt3PsJ",
+                "name": "Oh Rama Shri Rama",
+                "subtitle": "Adviteeya Vojjala, Sruthi Ranjani, Kalyanachakravarthy Tripuraneni, Thaman S, Dhanujay Seepana, Saketh Kommajosyula, Suman Kasula, Saatvik G Rao, Vagdevi Kumara - Jaat (Original Motion Picture Soundtrack)",
+                "type": "song",
+                "url": "https://www.jiosaavn.com/song/oh-rama-shri-rama/FyIoRUdgRHk",
+                "image": "http://c.saavncdn.com/505/Jaat-Hindi-2025-20250410091040-500x500.jpg",
+                "language": "hindi",
+                "year": "2025",
+                "header_desc": "",
+                "play_count": "72628",
+                "explicit": false,
+                "list": "",
+                "list_type": "",
+                "list_count": "0",
+                "music": "Thaman S, Dhanujay Seepana, Saketh Kommajosyula, Suman Kasula, Saatvik G Rao, Vagdevi Kumara, Adviteeya Vojjala, Sruthi Ranjani, Kalyanachakravarthy Tripuraneni",
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "1733765",
+                            "name": "Sruthi Ranjani",
+                            "url": "https://www.jiosaavn.com/artist/sruthi-ranjani-songs/dyDxvgjSiqw_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/116/Ninnu-Maruvalenu-English-2019-20190402171517-500x500.jpg"
+                        },
+                        {
+                            "id": "12608844",
+                            "name": "Saatvik G Rao",
+                            "url": "https://www.jiosaavn.com/artist/saatvik-g-rao-songs/M-z5sPuQEGI_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "14076399",
+                            "name": "Adviteeya Vojjala",
+                            "url": "https://www.jiosaavn.com/artist/adviteeya-vojjala-songs/,QFBEBjRnyE_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "16961517",
+                            "name": "Vagdevi Kumara",
+                            "url": "https://www.jiosaavn.com/artist/vagdevi-kumara-songs/77hbtTae6Xw_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17313338",
+                            "name": "Kalyanachakravarthy Tripuraneni",
+                            "url": "https://www.jiosaavn.com/artist/kalyanachakravarthy-tripuraneni-songs/vrDZXshjEms_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17739735",
+                            "name": "Saketh Kommajosyula",
+                            "url": "https://www.jiosaavn.com/artist/saketh-kommajosyula-songs/yhwXfhxA59Y_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113543",
+                            "name": "Dhanujay Seepana",
+                            "url": "https://www.jiosaavn.com/artist/dhanujay-seepana-songs/lwVsQXCzlJg_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113544",
+                            "name": "Suman Kasula",
+                            "url": "https://www.jiosaavn.com/artist/suman-kasula-songs/zkqU,xJFobg_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "1733765",
+                            "name": "Sruthi Ranjani",
+                            "url": "https://www.jiosaavn.com/artist/sruthi-ranjani-songs/dyDxvgjSiqw_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/116/Ninnu-Maruvalenu-English-2019-20190402171517-500x500.jpg"
+                        },
+                        {
+                            "id": "12608844",
+                            "name": "Saatvik G Rao",
+                            "url": "https://www.jiosaavn.com/artist/saatvik-g-rao-songs/M-z5sPuQEGI_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "14076399",
+                            "name": "Adviteeya Vojjala",
+                            "url": "https://www.jiosaavn.com/artist/adviteeya-vojjala-songs/,QFBEBjRnyE_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "16961517",
+                            "name": "Vagdevi Kumara",
+                            "url": "https://www.jiosaavn.com/artist/vagdevi-kumara-songs/77hbtTae6Xw_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17313338",
+                            "name": "Kalyanachakravarthy Tripuraneni",
+                            "url": "https://www.jiosaavn.com/artist/kalyanachakravarthy-tripuraneni-songs/vrDZXshjEms_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17739735",
+                            "name": "Saketh Kommajosyula",
+                            "url": "https://www.jiosaavn.com/artist/saketh-kommajosyula-songs/yhwXfhxA59Y_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113543",
+                            "name": "Dhanujay Seepana",
+                            "url": "https://www.jiosaavn.com/artist/dhanujay-seepana-songs/lwVsQXCzlJg_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113544",
+                            "name": "Suman Kasula",
+                            "url": "https://www.jiosaavn.com/artist/suman-kasula-songs/zkqU,xJFobg_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        }
+                    ]
+                },
+                "album": "Jaat (Original Motion Picture Soundtrack)",
+                "album_id": "63647757",
+                "album_url": "https://www.jiosaavn.com/album/jaat-original-motion-picture-soundtrack/fzVAtr8H7cg_",
+                "label": "Zee Music Company",
+                "label_url": "/label/zee-music-company-albums/",
+                "origin": "search",
+                "is_dolby_content": false,
+                "320kbps": true,
+                "download_url": [
+                    {
+                        "quality": "12kbps",
+                        "link": "http://aac.saavncdn.com/505/a54df06d0c3e215328dd4685eb8a3ffd_12.mp4"
+                    },
+                    {
+                        "quality": "48kbps",
+                        "link": "http://aac.saavncdn.com/505/a54df06d0c3e215328dd4685eb8a3ffd_48.mp4"
+                    },
+                    {
+                        "quality": "96kbps",
+                        "link": "http://aac.saavncdn.com/505/a54df06d0c3e215328dd4685eb8a3ffd_96.mp4"
+                    },
+                    {
+                        "quality": "160kbps",
+                        "link": "http://aac.saavncdn.com/505/a54df06d0c3e215328dd4685eb8a3ffd_160.mp4"
+                    },
+                    {
+                        "quality": "320kbps",
+                        "link": "http://aac.saavncdn.com/505/a54df06d0c3e215328dd4685eb8a3ffd_320.mp4"
+                    }
+                ],
+                "duration": 268,
+                "rights": {
+                    "code": "0",
+                    "cacheable": "true",
+                    "delete_cached_object": "false",
+                    "reason": ""
+                },
+                "has_lyrics": false,
+                "lyrics_snippet": "",
+                "starred": false,
+                "release_date": "",
+                "triller_available": false,
+                "copyright_text": "© 2025 Zee Music Company",
+                "vcode": "010910443041358",
+                "vlink": "https://jiotunepreview.jio.com/content/Converted/010910442995815.mp3"
+            },
+            {
+                "id": "fJh8uT_W",
+                "name": "Sorry Bol",
+                "subtitle": "Thaman S, Madhubanti Bagchi, Shahid Mallya - Jaat (Original Motion Picture Soundtrack)",
+                "type": "song",
+                "url": "https://www.jiosaavn.com/song/sorry-bol/FiIDCQFkaGQ",
+                "image": "http://c.saavncdn.com/505/Jaat-Hindi-2025-20250410091040-500x500.jpg",
+                "language": "hindi",
+                "year": "2025",
+                "header_desc": "",
+                "play_count": "151265",
+                "explicit": false,
+                "list": "",
+                "list_type": "",
+                "list_count": "0",
+                "music": "Thaman S, Madhubanti Bagchi, Shahid Mallya",
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "455665",
+                            "name": "Kumaar",
+                            "url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_",
+                            "role": "Lyricist",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_500x500.jpg"
+                        },
+                        {
+                            "id": "463482",
+                            "name": "Shahid Mallya",
+                            "url": "https://www.jiosaavn.com/artist/shahid-mallya-songs/S2ih,UGgm8Y_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Shahid_Mallya_20180322124348_500x500.jpg"
+                        },
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "670466",
+                            "name": "Madhubanti Bagchi",
+                            "url": "https://www.jiosaavn.com/artist/madhubanti-bagchi-songs/2WGyBWpxfxM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Madhubanti_Bagchi_003_20250124101814_500x500.jpg"
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "463482",
+                            "name": "Shahid Mallya",
+                            "url": "https://www.jiosaavn.com/artist/shahid-mallya-songs/S2ih,UGgm8Y_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Shahid_Mallya_20180322124348_500x500.jpg"
+                        },
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "670466",
+                            "name": "Madhubanti Bagchi",
+                            "url": "https://www.jiosaavn.com/artist/madhubanti-bagchi-songs/2WGyBWpxfxM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Madhubanti_Bagchi_003_20250124101814_500x500.jpg"
+                        }
+                    ]
+                },
+                "album": "Jaat (Original Motion Picture Soundtrack)",
+                "album_id": "63647757",
+                "album_url": "https://www.jiosaavn.com/album/jaat-original-motion-picture-soundtrack/fzVAtr8H7cg_",
+                "label": "Zee Music Company",
+                "label_url": "/label/zee-music-company-albums/",
+                "origin": "search",
+                "is_dolby_content": false,
+                "320kbps": true,
+                "download_url": [
+                    {
+                        "quality": "12kbps",
+                        "link": "http://aac.saavncdn.com/505/a4cc330b265dff06050365d9c5aee8e2_12.mp4"
+                    },
+                    {
+                        "quality": "48kbps",
+                        "link": "http://aac.saavncdn.com/505/a4cc330b265dff06050365d9c5aee8e2_48.mp4"
+                    },
+                    {
+                        "quality": "96kbps",
+                        "link": "http://aac.saavncdn.com/505/a4cc330b265dff06050365d9c5aee8e2_96.mp4"
+                    },
+                    {
+                        "quality": "160kbps",
+                        "link": "http://aac.saavncdn.com/505/a4cc330b265dff06050365d9c5aee8e2_160.mp4"
+                    },
+                    {
+                        "quality": "320kbps",
+                        "link": "http://aac.saavncdn.com/505/a4cc330b265dff06050365d9c5aee8e2_320.mp4"
+                    }
+                ],
+                "duration": 245,
+                "rights": {
+                    "code": "0",
+                    "cacheable": "true",
+                    "delete_cached_object": "false",
+                    "reason": ""
+                },
+                "has_lyrics": false,
+                "lyrics_snippet": "",
+                "starred": false,
+                "release_date": "",
+                "triller_available": false,
+                "copyright_text": "© 2025 Zee Music Company",
+                "vcode": "010910443027831",
+                "vlink": "https://jiotunepreview.jio.com/content/Converted/010910442984351.mp3"
+            },
+            {
+                "id": "YvXHKn4V",
+                "name": "Jaat Theme Song (From \"Jaat\")",
+                "subtitle": "Amrit Maan, Thaman S - Jaat Theme Song (From \"Jaat\")",
+                "type": "song",
+                "url": "https://www.jiosaavn.com/song/jaat-theme-song-from-jaat/KR4zeT9eA2U",
+                "image": "http://c.saavncdn.com/007/Jaat-Theme-Song-From-Jaat-Hindi-2025-20250408175955-500x500.jpg",
+                "language": "hindi",
+                "year": "2025",
+                "header_desc": "",
+                "play_count": "147119",
+                "explicit": false,
+                "list": "",
+                "list_type": "",
+                "list_count": "0",
+                "music": "Thaman S, Amrit Maan",
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "455627",
+                            "name": "Sunny Deol",
+                            "url": "https://www.jiosaavn.com/artist/sunny-deol-songs/OpniZFFn41o_",
+                            "role": "Starring",
+                            "type": "artist",
+                            "image": "http://c.saavncdn.com/artists/Sunny_Deol_500x500.jpg"
+                        },
+                        {
+                            "id": "467134",
+                            "name": "Randeep Hooda",
+                            "url": "https://www.jiosaavn.com/artist/randeep-hooda-songs/5VL3Ku7temM_",
+                            "role": "Starring",
+                            "type": "artist",
+                            "image": "http://c.saavncdn.com/artists/Randeep_Hooda_500x500.jpg"
+                        },
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "http://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "671774",
+                            "name": "Amrit Maan",
+                            "url": "https://www.jiosaavn.com/artist/amrit-maan-songs/ggj7NcJa2fk_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": "http://c.saavncdn.com/artists/Amrit_Maan_002_20240514101546_500x500.jpg"
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "http://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "671774",
+                            "name": "Amrit Maan",
+                            "url": "https://www.jiosaavn.com/artist/amrit-maan-songs/ggj7NcJa2fk_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "http://c.saavncdn.com/artists/Amrit_Maan_002_20240514101546_500x500.jpg"
+                        }
+                    ]
+                },
+                "album": "Jaat Theme Song (From \"Jaat\")",
+                "album_id": "63573803",
+                "album_url": "https://www.jiosaavn.com/album/jaat-theme-song-from-jaat/cG2FvNrvUbs_",
+                "label": "Zee Music Company",
+                "label_url": "/label/zee-music-company-albums/",
+                "origin": "search",
+                "is_dolby_content": false,
+                "320kbps": true,
+                "download_url": [
+                    {
+                        "quality": "12kbps",
+                        "link": "http://aac.saavncdn.com/007/c6991feb1adaca6f098b1847f549c66c_12.mp4"
+                    },
+                    {
+                        "quality": "48kbps",
+                        "link": "http://aac.saavncdn.com/007/c6991feb1adaca6f098b1847f549c66c_48.mp4"
+                    },
+                    {
+                        "quality": "96kbps",
+                        "link": "http://aac.saavncdn.com/007/c6991feb1adaca6f098b1847f549c66c_96.mp4"
+                    },
+                    {
+                        "quality": "160kbps",
+                        "link": "http://aac.saavncdn.com/007/c6991feb1adaca6f098b1847f549c66c_160.mp4"
+                    },
+                    {
+                        "quality": "320kbps",
+                        "link": "http://aac.saavncdn.com/007/c6991feb1adaca6f098b1847f549c66c_320.mp4"
+                    }
+                ],
+                "duration": 202,
+                "rights": {
+                    "code": "0",
+                    "cacheable": "true",
+                    "delete_cached_object": "false",
+                    "reason": ""
+                },
+                "has_lyrics": false,
+                "lyrics_snippet": "",
+                "starred": false,
+                "release_date": "",
+                "triller_available": false,
+                "copyright_text": "© 2025 Zee Music Company",
+                "vcode": "010910443038638",
+                "vlink": "https://jiotunepreview.jio.com/content/Converted/010910442995173.mp3"
+            },
+            {
+                "id": "U4_BBSwP",
+                "name": "Sorry Bol",
+                "subtitle": "Thaman S, Madhubanti Bagchi, Shahid Mallya - Sorry Bol (From \"Jaat\")",
+                "type": "song",
+                "url": "https://www.jiosaavn.com/song/sorry-bol/JVw0czZjQGM",
+                "image": "http://c.saavncdn.com/499/Sorry-Bol-From-Jaat-Hindi-2025-20250414214704-500x500.jpg",
+                "language": "hindi",
+                "year": "2025",
+                "header_desc": "",
+                "play_count": "151265",
+                "explicit": false,
+                "list": "",
+                "list_type": "",
+                "list_count": "0",
+                "music": "Thaman S, Madhubanti Bagchi, Shahid Mallya",
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "455665",
+                            "name": "Kumaar",
+                            "url": "https://www.jiosaavn.com/artist/kumaar-songs/jXhf,IMIGGs_",
+                            "role": "Lyricist",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Kumaar_001_20240516094915_500x500.jpg"
+                        },
+                        {
+                            "id": "463482",
+                            "name": "Shahid Mallya",
+                            "url": "https://www.jiosaavn.com/artist/shahid-mallya-songs/S2ih,UGgm8Y_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Shahid_Mallya_20180322124348_500x500.jpg"
+                        },
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "670466",
+                            "name": "Madhubanti Bagchi",
+                            "url": "https://www.jiosaavn.com/artist/madhubanti-bagchi-songs/2WGyBWpxfxM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Madhubanti_Bagchi_003_20250124101814_500x500.jpg"
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "463482",
+                            "name": "Shahid Mallya",
+                            "url": "https://www.jiosaavn.com/artist/shahid-mallya-songs/S2ih,UGgm8Y_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Shahid_Mallya_20180322124348_500x500.jpg"
+                        },
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "670466",
+                            "name": "Madhubanti Bagchi",
+                            "url": "https://www.jiosaavn.com/artist/madhubanti-bagchi-songs/2WGyBWpxfxM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Madhubanti_Bagchi_003_20250124101814_500x500.jpg"
+                        }
+                    ]
+                },
+                "album": "Sorry Bol (From \"Jaat\")",
+                "album_id": "63395903",
+                "album_url": "https://www.jiosaavn.com/album/sorry-bol-from-jaat/vCQB8yi-EuA_",
+                "label": "Zee Music Company",
+                "label_url": "/label/zee-music-company-albums/",
+                "origin": "search",
+                "is_dolby_content": false,
+                "320kbps": true,
+                "download_url": [
+                    {
+                        "quality": "12kbps",
+                        "link": "http://aac.saavncdn.com/499/fad9012757268204383d51b48e7d7727_12.mp4"
+                    },
+                    {
+                        "quality": "48kbps",
+                        "link": "http://aac.saavncdn.com/499/fad9012757268204383d51b48e7d7727_48.mp4"
+                    },
+                    {
+                        "quality": "96kbps",
+                        "link": "http://aac.saavncdn.com/499/fad9012757268204383d51b48e7d7727_96.mp4"
+                    },
+                    {
+                        "quality": "160kbps",
+                        "link": "http://aac.saavncdn.com/499/fad9012757268204383d51b48e7d7727_160.mp4"
+                    },
+                    {
+                        "quality": "320kbps",
+                        "link": "http://aac.saavncdn.com/499/fad9012757268204383d51b48e7d7727_320.mp4"
+                    }
+                ],
+                "duration": 245,
+                "rights": {
+                    "code": "0",
+                    "cacheable": "true",
+                    "delete_cached_object": "false",
+                    "reason": ""
+                },
+                "has_lyrics": false,
+                "lyrics_snippet": "",
+                "starred": false,
+                "release_date": "",
+                "triller_available": false,
+                "copyright_text": "© 2025 Zee Music Company",
+                "vcode": "010910443027831",
+                "vlink": "https://jiotunepreview.jio.com/content/Converted/010910442984351.mp3"
+            },
+            {
+                "id": "cxAW4zXO",
+                "name": "Oh Rama Shri Rama",
+                "subtitle": "Adviteeya Vojjala, Sruthi Ranjani, Kalyanachakravarthy Tripuraneni, Thaman S, Dhanujay Seepana, Saketh Kommajosyula, Suman Kasula, Saatvik G Rao, Vagdevi Kumara - Oh Rama Shri Rama (From \"Jaat\")",
+                "type": "song",
+                "url": "https://www.jiosaavn.com/song/oh-rama-shri-rama/ExAqZkBKb3w",
+                "image": "http://c.saavncdn.com/802/Oh-Rama-Shri-Rama-From-Jaat-Hindi-2025-20250407110407-500x500.jpg",
+                "language": "hindi",
+                "year": "2025",
+                "header_desc": "",
+                "play_count": "72641",
+                "explicit": false,
+                "list": "",
+                "list_type": "",
+                "list_count": "0",
+                "music": "Thaman S, Dhanujay Seepana, Saketh Kommajosyula, Suman Kasula, Saatvik G Rao, Vagdevi Kumara, Adviteeya Vojjala, Sruthi Ranjani, Kalyanachakravarthy Tripuraneni",
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "1733765",
+                            "name": "Sruthi Ranjani",
+                            "url": "https://www.jiosaavn.com/artist/sruthi-ranjani-songs/dyDxvgjSiqw_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/116/Ninnu-Maruvalenu-English-2019-20190402171517-500x500.jpg"
+                        },
+                        {
+                            "id": "12608844",
+                            "name": "Saatvik G Rao",
+                            "url": "https://www.jiosaavn.com/artist/saatvik-g-rao-songs/M-z5sPuQEGI_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "14076399",
+                            "name": "Adviteeya Vojjala",
+                            "url": "https://www.jiosaavn.com/artist/adviteeya-vojjala-songs/,QFBEBjRnyE_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "16961517",
+                            "name": "Vagdevi Kumara",
+                            "url": "https://www.jiosaavn.com/artist/vagdevi-kumara-songs/77hbtTae6Xw_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17313338",
+                            "name": "Kalyanachakravarthy Tripuraneni",
+                            "url": "https://www.jiosaavn.com/artist/kalyanachakravarthy-tripuraneni-songs/vrDZXshjEms_",
+                            "role": "Music, Lyricist",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17739735",
+                            "name": "Saketh Kommajosyula",
+                            "url": "https://www.jiosaavn.com/artist/saketh-kommajosyula-songs/yhwXfhxA59Y_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113543",
+                            "name": "Dhanujay Seepana",
+                            "url": "https://www.jiosaavn.com/artist/dhanujay-seepana-songs/lwVsQXCzlJg_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113544",
+                            "name": "Suman Kasula",
+                            "url": "https://www.jiosaavn.com/artist/suman-kasula-songs/zkqU,xJFobg_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "544471",
+                            "name": "Thaman S",
+                            "url": "https://www.jiosaavn.com/artist/thaman-s-songs/WEGez,XokRM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/artists/Thaman_S__007_20231106094011_500x500.jpg"
+                        },
+                        {
+                            "id": "1733765",
+                            "name": "Sruthi Ranjani",
+                            "url": "https://www.jiosaavn.com/artist/sruthi-ranjani-songs/dyDxvgjSiqw_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": "https://c.saavncdn.com/116/Ninnu-Maruvalenu-English-2019-20190402171517-500x500.jpg"
+                        },
+                        {
+                            "id": "12608844",
+                            "name": "Saatvik G Rao",
+                            "url": "https://www.jiosaavn.com/artist/saatvik-g-rao-songs/M-z5sPuQEGI_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "14076399",
+                            "name": "Adviteeya Vojjala",
+                            "url": "https://www.jiosaavn.com/artist/adviteeya-vojjala-songs/,QFBEBjRnyE_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "16961517",
+                            "name": "Vagdevi Kumara",
+                            "url": "https://www.jiosaavn.com/artist/vagdevi-kumara-songs/77hbtTae6Xw_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17313338",
+                            "name": "Kalyanachakravarthy Tripuraneni",
+                            "url": "https://www.jiosaavn.com/artist/kalyanachakravarthy-tripuraneni-songs/vrDZXshjEms_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "17739735",
+                            "name": "Saketh Kommajosyula",
+                            "url": "https://www.jiosaavn.com/artist/saketh-kommajosyula-songs/yhwXfhxA59Y_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113543",
+                            "name": "Dhanujay Seepana",
+                            "url": "https://www.jiosaavn.com/artist/dhanujay-seepana-songs/lwVsQXCzlJg_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "22113544",
+                            "name": "Suman Kasula",
+                            "url": "https://www.jiosaavn.com/artist/suman-kasula-songs/zkqU,xJFobg_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        }
+                    ]
+                },
+                "album": "Oh Rama Shri Rama (From \"Jaat\")",
+                "album_id": "63515769",
+                "album_url": "https://www.jiosaavn.com/album/oh-rama-shri-rama-from-jaat/ZuUN,j22eUk_",
+                "label": "Zee Music Company",
+                "label_url": "/label/zee-music-company-albums/",
+                "origin": "search",
+                "is_dolby_content": false,
+                "320kbps": true,
+                "download_url": [
+                    {
+                        "quality": "12kbps",
+                        "link": "http://aac.saavncdn.com/802/8217db0636e9bdc91b1ffec7151ef839_12.mp4"
+                    },
+                    {
+                        "quality": "48kbps",
+                        "link": "http://aac.saavncdn.com/802/8217db0636e9bdc91b1ffec7151ef839_48.mp4"
+                    },
+                    {
+                        "quality": "96kbps",
+                        "link": "http://aac.saavncdn.com/802/8217db0636e9bdc91b1ffec7151ef839_96.mp4"
+                    },
+                    {
+                        "quality": "160kbps",
+                        "link": "http://aac.saavncdn.com/802/8217db0636e9bdc91b1ffec7151ef839_160.mp4"
+                    },
+                    {
+                        "quality": "320kbps",
+                        "link": "http://aac.saavncdn.com/802/8217db0636e9bdc91b1ffec7151ef839_320.mp4"
+                    }
+                ],
+                "duration": 268,
+                "rights": {
+                    "code": "0",
+                    "cacheable": "true",
+                    "delete_cached_object": "false",
+                    "reason": ""
+                },
+                "has_lyrics": false,
+                "lyrics_snippet": "",
+                "starred": false,
+                "release_date": "",
+                "triller_available": false,
+                "copyright_text": "© 2025 Zee Music Company",
+                "vcode": "010910443041358",
+                "vlink": "https://jiotunepreview.jio.com/content/Converted/010910442995815.mp3"
+            }
+        ]
+    }
+}

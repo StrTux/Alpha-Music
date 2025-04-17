@@ -1,0 +1,5 @@
+/**
+ * home module
+ */
+
+export default {};

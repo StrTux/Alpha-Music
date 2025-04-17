@@ -1,0 +1,5 @@
+/**
+ * library module
+ */
+
+export default {};

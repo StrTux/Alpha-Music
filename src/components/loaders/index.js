@@ -1,0 +1,5 @@
+/**
+ * loaders module
+ */
+
+export default {};

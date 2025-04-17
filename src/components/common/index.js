@@ -1,0 +1,5 @@
+/**
+ * common module
+ */
+
+export default {};

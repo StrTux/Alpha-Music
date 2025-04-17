@@ -1,0 +1,5 @@
+/**
+ * lists module
+ */
+
+export default {};
