@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,40 +6,105 @@ import {
   StyleSheet,
   Dimensions,
   Image,
+  Appearance,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
+import Slider from '@react-native-community/slider';
 import { VLCPlayer } from 'react-native-vlc-media-player';
 
 const { width } = Dimensions.get('window');
 
-const MiniVlcPlayer = ({ url, title, artist, artwork, onClose }) => {
+const MiniVlcPlayer = ({ track, onNext, onPrev, onClose }) => {
   const [paused, setPaused] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const playerRef = useRef(null);
+  const isDark = Appearance.getColorScheme() === 'dark';
+
+  // Reset on track change
+  useEffect(() => {
+    setPaused(false);
+    setDuration(0);
+    setCurrentTime(0);
+  }, [track?.url]);
+
+  // Update time/duration
+  const onProgress = e => {
+    const dur = e?.duration > 0 ? e.duration : duration;
+    const cur = e?.currentTime >= 0 ? e.currentTime : currentTime;
+    if (dur !== duration) setDuration(dur);
+    setCurrentTime(cur);
+  };
+
+  // Seek handler
+  const handleSeek = value => {
+    if (playerRef.current && duration) {
+      const seekTime = value * duration;
+      playerRef.current.seek(seekTime);
+      setCurrentTime(seekTime);
+    }
+  };
+
+  // Format seconds to mm:ss
+  const formatTime = sec => {
+    const s = isFinite(sec) && sec >= 0 ? Math.floor(sec) : 0;
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${m}:${r < 10 ? '0' : ''}${r}`;
+  };
+
+  if (!track) return null;
+
+  const progress = duration ? currentTime / duration : 0;
 
   return (
-    <View style={styles.container}>
-      {artwork && <Image source={{ uri: artwork }} style={styles.artwork} />}
-      <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>{title}</Text>
-        <Text style={styles.artist} numberOfLines={1}>{artist}</Text>
-      </View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setPaused(!paused)}
-      >
-        <Text style={styles.buttonText}>{paused ? '▶️' : '⏸️'}</Text>
-      </TouchableOpacity>
-      {onClose && (
-        <TouchableOpacity style={styles.close} onPress={onClose}>
-          <Text style={{ color: '#fff', fontSize: 18 }}>✕</Text>
+    <View style={[styles.container, isDark ? styles.dark : styles.light]}>
+      {/* Slider only */}
+      <Slider
+        style={styles.slider}
+        minimumValue={0}
+        maximumValue={1}
+        value={progress}
+        onSlidingComplete={handleSeek}
+        minimumTrackTintColor="#1DB954"
+        maximumTrackTintColor="#888"
+        thumbTintColor="#1DB954"
+        disabled={!duration}
+      />
+
+      {/* Track info + controls */}
+      <View style={styles.row}>
+        <Image source={{ uri: track.artwork }} style={styles.artwork} />
+        <View style={styles.info}>
+          <Text style={styles.title} numberOfLines={1}>{track.title}</Text>
+          <Text style={styles.artist} numberOfLines={1}>{track.artist}</Text>
+        </View>
+        <TouchableOpacity onPress={() => setPaused(!paused)} style={styles.btn}>
+          <Feather name={paused ? 'play' : 'pause'} size={20} color="#1DB954" />
         </TouchableOpacity>
-      )}
+        <TouchableOpacity onPress={onNext} style={styles.btn}>
+          <Feather name="skip-forward" size={18} color={isDark ? '#fff' : '#000'} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setLiked(!liked)} style={styles.btn}>
+          <Feather name="heart" size={18} color={liked ? '#e74c3c' : '#aaa'} />
+        </TouchableOpacity>
+        {onClose && (
+          <TouchableOpacity onPress={onClose} style={styles.btn}>
+            <Feather name="x" size={18} color={isDark ? '#fff' : '#000'} />
+          </TouchableOpacity>
+        )}
+      </View>
+
       <VLCPlayer
-        source={{ uri: url }}
-        audioOnly={true}
-        playInBackground={true}
+        ref={playerRef}
+        source={{ uri: track.url }}
+        audioOnly
+        playInBackground
         paused={paused}
-        onError={e => console.error('VLC error', e)}
-        style={styles.hidden}
+        onProgress={onProgress}
+        style={{ width: 0, height: 0 }}
+        onError={e => console.log('VLC Error', e)}
       />
     </View>
   );
@@ -47,52 +112,31 @@ const MiniVlcPlayer = ({ url, title, artist, artwork, onClose }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#181818',
-    padding: 10,
-    borderRadius: 10,
-    margin: 10,
+    width: width - 24,
+    borderRadius: 14,
+    padding: 8,
+    margin: 12,
     elevation: 2,
   },
+  dark: { backgroundColor: '#111' },
+  light: { backgroundColor: '#fff' },
+  slider: { width: '100%', height: 28 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
   artwork: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     borderRadius: 6,
-    marginRight: 10,
-    backgroundColor: '#333',
-  },
-  info: {
-    flex: 1,
+    backgroundColor: '#444',
     marginRight: 10,
   },
-  title: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-  artist: {
-    color: '#bbb',
-    fontSize: 13,
-  },
-  button: {
-    padding: 8,
-    backgroundColor: '#1DB954',
-    borderRadius: 20,
-    marginRight: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  close: {
-    padding: 6,
-    marginLeft: 2,
-  },
-  hidden: {
-    width: 0,
-    height: 0,
-  },
+  info: { flex: 1 },
+  title: { fontSize: 14, fontWeight: '600', color: '#fff' },
+  artist: { fontSize: 12, color: '#bbb' },
+  btn: { padding: 6, marginLeft: 4 },
 });
 
-export default MiniVlcPlayer; 
+export default MiniVlcPlayer;

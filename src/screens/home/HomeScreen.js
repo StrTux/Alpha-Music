@@ -17,7 +17,6 @@ import { MusicContext } from '../../context/MusicContext';
 
 import ErrorBoundary from '../../components/common/ErrorBoundary';
 import { useMusic } from '../../context/MusicContext';
-import VideoPlayer from '../../components/VideoPlayer';
 import VlcAudioPlayer from '../../components/VLCPlayerComponent';
 import MiniVlcPlayer from '../../components/MiniVlcPlayer';
 
@@ -297,6 +296,7 @@ const HomeScreen = () => {
             title: song.name,
             artist: song.subtitle || song.artist,
             artwork: getHighQualityImage(song.image),
+            duration: song.duration || 0,
           });
           setLoadingItemId(null);
           return;
@@ -542,10 +542,9 @@ const HomeScreen = () => {
 
           {vlcTrack && (
             <MiniVlcPlayer
-              url={vlcTrack.url}
-              title={vlcTrack.title}
-              artist={vlcTrack.artist}
-              artwork={vlcTrack.artwork}
+              track={vlcTrack}
+              onNext={() => { /* TODO: implement next track logic */ }}
+              onPrev={() => { /* TODO: implement previous track logic */ }}
               onClose={() => setVlcTrack(null)}
             />
           )}
