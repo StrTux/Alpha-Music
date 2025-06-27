@@ -105,6 +105,7 @@ const MiniVlcPlayer = ({ track, onNext, onPrev, onClose }) => {
         onProgress={onProgress}
         style={{ width: 0, height: 0 }}
         onError={e => console.log('VLC Error', e)}
+        onEnded={onNext}
       />
     </View>
   );
