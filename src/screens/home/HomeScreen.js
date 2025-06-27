@@ -113,7 +113,6 @@ const HomeScreen = () => {
     artists: true,
   });
   const [loadingItemId, setLoadingItemId] = useState(null);
-  const [localLibrary, setLocalLibrary] = useState([]);
   const [vlcTrack, setVlcTrack] = useState(null);
 
   // Get music context functionsr
@@ -207,10 +206,6 @@ const HomeScreen = () => {
     };
 
     fetchTopArtists();
-  }, []);
-
-  useEffect(() => {
-    setLocalLibrary([]); // No local library data available
   }, []);
 
   const renderLanguageButton = ({ item }) => (
@@ -501,69 +496,6 @@ const HomeScreen = () => {
     </View>
   );
 
-  // Play handler for local library
-  const handlePlayLocalItem = async (item) => {
-    try {
-      setLoadingItemId(item.url);
-      console.log('handlePlayLocalItem: item:', item);
-
-      // Defensive: Check for valid URL
-      if (!item.url || typeof item.url !== 'string' || !item.url.startsWith('http')) {
-        alert('This track has an invalid or missing URL and cannot be played.');
-        setLoadingItemId(null);
-        return;
-      }
-
-      // Always use playSong from context for consistent error handling
-      const track = {
-        id: item.url + '-' + (item.title || ''), // unique id
-        url: item.url,
-        title: item.title || 'Unknown Title',
-        artist: item.artist || 'Unknown Artist',
-        artwork: item.artwork || 'https://via.placeholder.com/500',
-        album: '',
-        duration: 0,
-      };
-      console.log('handlePlayLocalItem: track:', track);
-
-      await playSong(track);
-      console.log('playSong finished for local item');
-    } catch (error) {
-      alert('Failed to play this track. Please try another.');
-      console.error('Error playing local item:', error);
-    } finally {
-      setLoadingItemId(null);
-    }
-  };
-
-  // Render for local library
-  const renderLocalLibraryItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.trendingItem}
-      onPress={() => handlePlayLocalItem(item)}
-      disabled={loadingItemId === item.url}
-    >
-      <View style={styles.imageContainer}>
-        <HighQualityImage
-          source={item.artwork || 'https://via.placeholder.com/500'}
-          style={styles.trendingImage}
-          placeholderSource={require('../../assets/placeholder.png')}
-        />
-        {loadingItemId === item.url && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="small" color="#1DB954" />
-          </View>
-        )}
-      </View>
-      <Text style={styles.trendingTitle} numberOfLines={1}>
-        {item.title}
-      </Text>
-      <Text style={styles.trendingArtist} numberOfLines={1}>
-        {item.artist || ''}
-      </Text>
-    </TouchableOpacity>
-  );
-
   // Define sections data for the main FlatList
   const sections = [
     { id: 'languages', render: () => <LanguageSelector /> },
@@ -572,7 +504,6 @@ const HomeScreen = () => {
     { id: 'albums', render: () => <HorizontalRow title="Top Albums" data={topAlbums} renderItem={renderAlbumItem} isLoading={loading.albums} /> },
     { id: 'playlists_row', render: () => <HorizontalRow title="Top Playlists" data={topPlaylists} renderItem={renderPlaylistItem} isLoading={loading.playlists} /> },
     { id: 'artists', render: () => <HorizontalRow title="Top Artists" data={topArtists} renderItem={renderArtistItem} isLoading={loading.artists} /> },
-    { id: 'local_library', render: () => <HorizontalRow title="Local Library" data={localLibrary} renderItem={renderLocalLibraryItem} isLoading={false} /> },
   ];
 
   return (
