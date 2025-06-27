@@ -16,7 +16,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useMusic} from '../../context/MusicContext';
-import MiniPlayer from '../../components/player/MiniPlayer';
+import MiniPlayer from '../playerTab/MiniPlayer';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {useCachedData} from '../../contexts/CachedDataContext';

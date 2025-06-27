@@ -10,8 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MiniPlayer from '../../components/player/MiniPlayer';
+
 import { useNavigation } from '@react-navigation/native';
+import { useMusic } from '../../context/MusicContext';
+import MiniPlayer from '../playerTab/MiniPlayer';
 
 // Mock data
 const MOCK_SONGS = [
@@ -30,6 +32,7 @@ const MOCK_ALBUMS = [
 
 const ArtistScreen = () => {
   const navigation = useNavigation();
+  const { currentTrack } = useMusic();
   
   // Render functions
   const renderSongItem = ({ item }) => (
@@ -129,7 +132,7 @@ const ArtistScreen = () => {
       </ScrollView>
       
       {/* Mini Player */}
-      <MiniPlayer />
+      {currentTrack && <MiniPlayer />}
     </SafeAreaView>
   );
 };

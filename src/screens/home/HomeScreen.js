@@ -11,11 +11,15 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
+import TrackPlayer from 'react-native-track-player';
+import { useContext } from 'react';
+import { MusicContext } from '../../context/MusicContext';
 
-import MiniPlayer from '../../components/player/MiniPlayer';
 import ErrorBoundary from '../../components/common/ErrorBoundary';
 import { useMusic } from '../../context/MusicContext';
-import TrackPlayer from 'react-native-track-player';
+import VideoPlayer from '../../components/VideoPlayer';
+import VlcAudioPlayer from '../../components/VLCPlayerComponent';
+import MiniVlcPlayer from '../../components/MiniVlcPlayer';
 
 // API base URL
 const BASE_URL = "https://strtux-main.vercel.app";
@@ -24,17 +28,17 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 // Utility function to ensure high-quality images
 const getHighQualityImage = (imageUrl) => {
   if (!imageUrl) return 'https://via.placeholder.com/500';
-  
+
   // Some APIs might return different sized images
   // This ensures we're using the highest quality version possible
   // For JioSaavn, we ensure we're getting the 500x500 version
-  
+
   // If the image URL contains a size specification, ensure it's 500x500
   if (imageUrl.includes('saavncdn.com')) {
     // Replace any existing size with 500x500
     return imageUrl.replace(/\d+x\d+/, '500x500');
   }
-  
+
   return imageUrl;
 };
 
@@ -42,7 +46,7 @@ const getHighQualityImage = (imageUrl) => {
 const HighQualityImage = ({ source, style, placeholderSource }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  
+
   return (
     <View style={[style, styles.imageContainer]}>
       {isLoading && (
@@ -50,7 +54,7 @@ const HighQualityImage = ({ source, style, placeholderSource }) => {
           <ActivityIndicator size="small" color="#1DB954" />
         </View>
       )}
-      
+
       <Image
         source={hasError ? placeholderSource : { uri: source }}
         style={[style, !isLoading && !hasError && { opacity: 1 }]}
@@ -109,9 +113,11 @@ const HomeScreen = () => {
     artists: true,
   });
   const [loadingItemId, setLoadingItemId] = useState(null);
-  
-  // Get music context functions
-  const { playSong } = useMusic();
+  const [localLibrary, setLocalLibrary] = useState([]);
+  const [vlcTrack, setVlcTrack] = useState(null);
+
+  // Get music context functionsr
+  const { playSong, currentTrack } = useMusic();
 
   // Get current language code
   const getCurrentLanguageCode = () => {
@@ -129,7 +135,7 @@ const HomeScreen = () => {
         if (data.status === 'Success' && data.data) {
           setTrendingSongs(data.data.filter(item => item.type === 'song' || item.type === 'album'));
         }
-        } catch (error) {
+      } catch (error) {
         console.error('Error fetching trending songs:', error);
       } finally {
         setLoading(prev => ({ ...prev, trending: false }));
@@ -150,10 +156,10 @@ const HomeScreen = () => {
         const data = await response.json();
         if (data.status === 'Success' && data.data && data.data.results) {
           setTopAlbums(data.data.results);
-      }
-    } catch (error) {
+        }
+      } catch (error) {
         console.error('Error fetching top albums:', error);
-    } finally {
+      } finally {
         setLoading(prev => ({ ...prev, albums: false }));
       }
     };
@@ -172,8 +178,8 @@ const HomeScreen = () => {
         const data = await response.json();
         if (data.status === 'Success' && data.data && data.data.results) {
           setTopPlaylists(data.data.results);
-      }
-    } catch (error) {
+        }
+      } catch (error) {
         console.error('Error fetching top playlists:', error);
       } finally {
         setLoading(prev => ({ ...prev, playlists: false }));
@@ -193,7 +199,7 @@ const HomeScreen = () => {
         if (data.status === 'Success' && data.data) {
           setTopArtists(data.data);
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Error fetching top artists:', error);
       } finally {
         setLoading(prev => ({ ...prev, artists: false }));
@@ -201,6 +207,10 @@ const HomeScreen = () => {
     };
 
     fetchTopArtists();
+  }, []);
+
+  useEffect(() => {
+    setLocalLibrary([]); // No local library data available
   }, []);
 
   const renderLanguageButton = ({ item }) => (
@@ -223,8 +233,8 @@ const HomeScreen = () => {
   );
 
   const renderTrendingItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.trendingItem} 
+    <TouchableOpacity
+      style={styles.trendingItem}
       onPress={() => handlePlayTrendingItem(item)}
       disabled={loadingItemId === item.id}
     >
@@ -254,20 +264,24 @@ const HomeScreen = () => {
     try {
       // Set loading state for this specific item
       setLoadingItemId(item.id);
-      
+      console.log('handlePlayTrendingItem: item:', item);
+
       // Create a query using the music name and artist
       const musicName = item.name || item.title || '';
       const artistName = item.subtitle || item.artist || '';
       const query = encodeURIComponent(`${musicName} ${artistName}`);
-      
+      console.log('handlePlayTrendingItem: query:', query);
+
       // Fetch songs using the API
       const response = await fetch(`${BASE_URL}/search/songs?q=${query}`);
       const data = await response.json();
-      
+      console.log('handlePlayTrendingItem: API response:', data);
+
       if (data.status === 'Success' && data.data && data.data.results && data.data.results.length > 0) {
         // Get the first song from results
         const song = data.data.results[0];
-        
+        console.log('handlePlayTrendingItem: song:', song);
+
         // Extract the high quality download URL (320kbps)
         let downloadUrl = '';
         if (song.download_url && Array.isArray(song.download_url)) {
@@ -280,7 +294,19 @@ const HomeScreen = () => {
             downloadUrl = song.download_url[song.download_url.length - 1].link;
           }
         }
-        
+        console.log('handlePlayTrendingItem: downloadUrl:', downloadUrl);
+
+        if (downloadUrl.endsWith('.mp4')) {
+          setVlcTrack({
+            url: downloadUrl,
+            title: song.name,
+            artist: song.subtitle || song.artist,
+            artwork: getHighQualityImage(song.image),
+          });
+          setLoadingItemId(null);
+          return;
+        }
+
         // Prepare the track for playing
         const track = {
           id: song.id,
@@ -291,16 +317,26 @@ const HomeScreen = () => {
           album: song.album,
           duration: song.duration
         };
-        
-        // Play the track using the music context
-        if (playSong) {
-          playSong(track);
-        } else {
-          // Use TrackPlayer directly if context is not available
-          await TrackPlayer.reset();
-          await TrackPlayer.add([track]);
-          await TrackPlayer.play();
+        console.log('handlePlayTrendingItem: track:', track);
+
+        // Safety check for playable URL
+        if (!downloadUrl || !downloadUrl.startsWith('http')) {
+          console.error('Invalid or missing audio URL:', downloadUrl);
+          alert('This song cannot be played due to invalid audio URL.');
+          setLoadingItemId(null);
+          return;
         }
+
+        // Play the track using the music context
+        if (typeof playSong === 'function') {
+          console.log('Calling playSong with track:', track);
+          await playSong(track);
+          console.log('playSong finished');
+        } else {
+          console.warn('playSong is not defined or not a function');
+        }
+
+        console.log('Track added to player:', track);
       } else {
         console.error('No songs found for query:', query);
       }
@@ -313,7 +349,7 @@ const HomeScreen = () => {
   };
 
   const renderAlbumItem = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.trendingItem}
       onPress={() => handlePlayTrendingItem(item)}
       disabled={loadingItemId === item.id}
@@ -399,13 +435,18 @@ const HomeScreen = () => {
       );
     }
 
+    // Use item.url as key for local_library, otherwise item.id
+    const keyExtractor = title === 'Local Library'
+      ? (item) => item.url
+      : (item) => item.id;
+
     return (
       <View style={styles.section}>
         {renderSectionHeader(title)}
         <FlatList
           data={data}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={keyExtractor}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.horizontalListContent}
@@ -430,7 +471,7 @@ const HomeScreen = () => {
         data={PLAYLISTS}
         numColumns={2}
         renderItem={({ item }) => (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.playlistCard}
             activeOpacity={0.7}
           >
@@ -460,6 +501,69 @@ const HomeScreen = () => {
     </View>
   );
 
+  // Play handler for local library
+  const handlePlayLocalItem = async (item) => {
+    try {
+      setLoadingItemId(item.url);
+      console.log('handlePlayLocalItem: item:', item);
+
+      // Defensive: Check for valid URL
+      if (!item.url || typeof item.url !== 'string' || !item.url.startsWith('http')) {
+        alert('This track has an invalid or missing URL and cannot be played.');
+        setLoadingItemId(null);
+        return;
+      }
+
+      // Always use playSong from context for consistent error handling
+      const track = {
+        id: item.url + '-' + (item.title || ''), // unique id
+        url: item.url,
+        title: item.title || 'Unknown Title',
+        artist: item.artist || 'Unknown Artist',
+        artwork: item.artwork || 'https://via.placeholder.com/500',
+        album: '',
+        duration: 0,
+      };
+      console.log('handlePlayLocalItem: track:', track);
+
+      await playSong(track);
+      console.log('playSong finished for local item');
+    } catch (error) {
+      alert('Failed to play this track. Please try another.');
+      console.error('Error playing local item:', error);
+    } finally {
+      setLoadingItemId(null);
+    }
+  };
+
+  // Render for local library
+  const renderLocalLibraryItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.trendingItem}
+      onPress={() => handlePlayLocalItem(item)}
+      disabled={loadingItemId === item.url}
+    >
+      <View style={styles.imageContainer}>
+        <HighQualityImage
+          source={item.artwork || 'https://via.placeholder.com/500'}
+          style={styles.trendingImage}
+          placeholderSource={require('../../assets/placeholder.png')}
+        />
+        {loadingItemId === item.url && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="small" color="#1DB954" />
+          </View>
+        )}
+      </View>
+      <Text style={styles.trendingTitle} numberOfLines={1}>
+        {item.title}
+      </Text>
+      <Text style={styles.trendingArtist} numberOfLines={1}>
+        {item.artist || ''}
+      </Text>
+    </TouchableOpacity>
+  );
+
   // Define sections data for the main FlatList
   const sections = [
     { id: 'languages', render: () => <LanguageSelector /> },
@@ -468,6 +572,7 @@ const HomeScreen = () => {
     { id: 'albums', render: () => <HorizontalRow title="Top Albums" data={topAlbums} renderItem={renderAlbumItem} isLoading={loading.albums} /> },
     { id: 'playlists_row', render: () => <HorizontalRow title="Top Playlists" data={topPlaylists} renderItem={renderPlaylistItem} isLoading={loading.playlists} /> },
     { id: 'artists', render: () => <HorizontalRow title="Top Artists" data={topArtists} renderItem={renderArtistItem} isLoading={loading.artists} /> },
+    { id: 'local_library', render: () => <HorizontalRow title="Local Library" data={localLibrary} renderItem={renderLocalLibraryItem} isLoading={false} /> },
   ];
 
   return (
@@ -480,6 +585,11 @@ const HomeScreen = () => {
           </View>
 
           <View style={styles.mainContent}>
+            {/* Example usage of VlcAudioPlayer for .mp4 (AAC) audio playback */}
+            <VlcAudioPlayer
+              url="http://aac.saavncdn.com/760/2e9b1b6e7e2e4e2b8e6e6e2b8e6e6e2b_320.mp4"
+              title="Sapphire – Ed Sheeran"
+            />
             {/* Main content using a single FlatList to avoid nesting issues */}
             <FlatList
               data={sections}
@@ -494,7 +604,20 @@ const HomeScreen = () => {
             />
           </View>
 
-          <MiniPlayer />
+          {currentTrack && (
+            console.log('Rendering VideoPlayer with currentTrack:', currentTrack),
+            <VideoPlayer sourceUrl={currentTrack.url} />
+          )}
+
+          {vlcTrack && (
+            <MiniVlcPlayer
+              url={vlcTrack.url}
+              title={vlcTrack.title}
+              artist={vlcTrack.artist}
+              artwork={vlcTrack.artwork}
+              onClose={() => setVlcTrack(null)}
+            />
+          )}
         </View>
       </SafeAreaView>
     </ErrorBoundary>

@@ -17,7 +17,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useMusic} from '../../context/MusicContext';
-import MiniPlayer from '../../components/player/MiniPlayer';
+import MiniPlayer from '../playerTab/MiniPlayer';
+
 import axios from 'axios';
 
 // API base URL - ensure this matches the one in other screens

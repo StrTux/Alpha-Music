@@ -9,9 +9,12 @@ import {
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MiniPlayer from '../../components/player/MiniPlayer';
+import { useMusic } from '../../context/MusicContext';
+import MiniPlayer from '../playerTab/MiniPlayer';
 
 const ProfileScreen = () => {
+  const { currentTrack } = useMusic();
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -125,7 +128,7 @@ const ProfileScreen = () => {
       </ScrollView>
       
       {/* Mini Player */}
-      <MiniPlayer />
+      {currentTrack && <MiniPlayer />}
     </SafeAreaView>
   );
 };

@@ -4,11 +4,9 @@
  */
 
 import ApiService from './ApiService';
-import TrackPlayerService from './TrackPlayerService';
 
-export {ApiService, TrackPlayerService};
+export { ApiService };
 
 export default {
   ApiService,
-  TrackPlayerService,
 };

@@ -18,7 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../../context/AuthContext';
 import {useMusic} from '../../context/MusicContext';
-import MiniPlayer from '../../components/player/MiniPlayer';
+import MiniPlayer from '../playerTab/MiniPlayer';
+
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
