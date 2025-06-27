@@ -116,8 +116,8 @@ const AppNav = () => {
             <Stack.Screen name="MainTabs" component={TabNavigator} />
             <Stack.Screen name="Player" component={PlayerScreen} />
             <Stack.Screen name="Artist" component={ArtistScreen} />
-            <Stack.Screen name="Album" component={AlbumScreen} />
-            <Stack.Screen name="Playlist" component={PlaylistScreen} />
+            <Stack.Screen name="AlbumScreen" component={AlbumScreen} />
+            <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
             <Stack.Screen name="AudioSettings" component={AudioSettings} />
             <Stack.Screen name="PodcastCategorieScreen" component={PodcastCategorieScreen} />
           </>

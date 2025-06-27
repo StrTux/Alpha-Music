@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,40 +7,126 @@ import {
   TouchableOpacity,
   FlatList,
   StatusBar,
-  ScrollView,
+  ActivityIndicator,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useMusic } from '../../context/MusicContext';
 import MiniPlayer from '../playerTab/MiniPlayer';
+import MiniVlcPlayer from '../../components/MiniVlcPlayer';
 
-// Mock data
-const MOCK_SONGS = [
-  { id: '1', title: 'Song 1', artist: 'Artist 1', duration: '3:45' },
-  { id: '2', title: 'Song 2', artist: 'Artist 2', duration: '3:20' },
-  { id: '3', title: 'Song 3', artist: 'Artist 3', duration: '4:12' },
-  { id: '4', title: 'Song 4', artist: 'Artist 4', duration: '3:56' },
-  { id: '5', title: 'Song 5', artist: 'Artist 5', duration: '3:02' },
-  { id: '6', title: 'Song 6', artist: 'Artist 6', duration: '4:30' },
-  { id: '7', title: 'Song 7', artist: 'Artist 7', duration: '3:18' },
-];
+const BASE_URL = "https://strtux-main.vercel.app";
+
+const getHighQualityImage = (imageUrl) => {
+  if (!imageUrl) return 'https://via.placeholder.com/500';
+  if (imageUrl.includes('saavncdn.com')) {
+    return imageUrl.replace(/\d+x\d+/, '500x500');
+  }
+  return imageUrl;
+};
 
 const PlaylistScreen = () => {
   const navigation = useNavigation();
-  const { currentTrack } = useMusic();
-  
+  const route = useRoute();
+  const { playlist } = route.params;
+  const { playSong, currentTrack } = useMusic();
+  const [songs, setSongs] = useState(Array.isArray(playlist.songs) && playlist.songs.length > 0 ? playlist.songs : []);
+  const [loading, setLoading] = useState(!(Array.isArray(playlist.songs) && playlist.songs.length > 0));
+  const [loadingItemId, setLoadingItemId] = useState(null);
+  const [vlcTrack, setVlcTrack] = useState(null);
+
+  useEffect(() => {
+    if (songs.length === 0) {
+      setLoading(true);
+      fetch(`${BASE_URL}/playlist?id=${playlist.id}`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.status === 'Success' && json.data?.songs) {
+            setSongs(json.data.songs);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [playlist.id]);
+
+  // Play a song with robust search and playback logic
+  const handlePlaySong = async (item) => {
+    try {
+      setLoadingItemId(item.id);
+      const musicName = item.name || item.title || '';
+      const artistName = item.primary_artists || item.artist || item.subtitle || '';
+      const query = encodeURIComponent(`${musicName} ${artistName}`);
+      const response = await fetch(`${BASE_URL}/search/songs?q=${query}`);
+      const data = await response.json();
+      if (data.status === 'Success' && data.data && data.data.results && data.data.results.length > 0) {
+        const song = data.data.results[0];
+        let downloadUrl = '';
+        if (song.download_url && Array.isArray(song.download_url)) {
+          const highQualityVersion = song.download_url.find(version => version.quality === '320kbps');
+          if (highQualityVersion) {
+            downloadUrl = highQualityVersion.link;
+          } else if (song.download_url.length > 0) {
+            downloadUrl = song.download_url[song.download_url.length - 1].link;
+          }
+        }
+        if (downloadUrl.endsWith('.mp4')) {
+          setVlcTrack({
+            url: downloadUrl,
+            title: song.name,
+            artist: song.subtitle || song.artist,
+            artwork: getHighQualityImage(song.image),
+            duration: song.duration || 0,
+          });
+          setLoadingItemId(null);
+          return;
+        }
+        const track = {
+          id: song.id,
+          url: downloadUrl,
+          title: song.name,
+          artist: song.subtitle || song.artist_map?.primary_artists?.[0]?.name || '',
+          artwork: getHighQualityImage(song.image),
+          album: song.album,
+          duration: song.duration
+        };
+        if (!downloadUrl || !downloadUrl.startsWith('http')) {
+          alert('This song cannot be played due to invalid audio URL.');
+          setLoadingItemId(null);
+          return;
+        }
+        if (typeof playSong === 'function') {
+          await playSong(track);
+        }
+      } else {
+        alert('No playable song found for this track.');
+      }
+    } catch (error) {
+      alert('Error playing this song.');
+    } finally {
+      setLoadingItemId(null);
+    }
+  };
+
   const renderSongItem = ({ item, index }) => (
-    <TouchableOpacity style={styles.songItem}>
+    <TouchableOpacity style={styles.songItem} onPress={() => handlePlaySong(item)} disabled={loadingItemId === item.id}>
       <Text style={styles.songNumber}>{index + 1}</Text>
       <View style={styles.songDetails}>
-        <Text style={styles.songTitle}>{item.title}</Text>
-        <Text style={styles.songArtist}>{item.artist}</Text>
+        <Text style={styles.songTitle}>{item.name || item.title}</Text>
+        <Text style={styles.songArtist}>{item.primary_artists || item.artist || item.subtitle}</Text>
       </View>
-      <Text style={styles.songDuration}>{item.duration}</Text>
+      <Text style={styles.songDuration}>
+        {item.duration
+          ? `${Math.floor(item.duration / 60)}:${String(item.duration % 60).padStart(2, '0')}`
+          : '--:--'}
+      </Text>
       <TouchableOpacity style={styles.moreButton}>
         <Icon name="ellipsis-vertical" size={20} color="#FFFFFF" />
       </TouchableOpacity>
+      {loadingItemId === item.id && (
+        <ActivityIndicator size="small" color="#1DB954" style={{ marginLeft: 10 }} />
+      )}
     </TouchableOpacity>
   );
 
@@ -63,56 +149,60 @@ const PlaylistScreen = () => {
         </View>
       </View>
       
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Playlist info */}
-        <View style={styles.playlistInfoContainer}>
-          <View style={styles.playlistCoverContainer}>
+      {/* Playlist info */}
+      <View style={styles.playlistInfoContainer}>
+        <View style={styles.playlistCoverContainer}>
+          {playlist.image ? (
+            <Image source={{ uri: playlist.image }} style={styles.playlistCover} />
+          ) : (
             <View style={styles.playlistCover} />
-          </View>
-          <Text style={styles.playlistTitle}>Playlist Title</Text>
-          <Text style={styles.playlistCreator}>Created by User</Text>
-          <Text style={styles.playlistInfo}>15 songs • 1 hour 20 min</Text>
-          
-          {/* Action buttons */}
-          <View style={styles.playlistActions}>
-            <TouchableOpacity style={styles.downloadButton}>
-              <Icon name="arrow-down" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.shuffleButton}>
-              <Icon name="shuffle" size={20} color="#000000" />
-              <Text style={styles.shuffleButtonText}>SHUFFLE</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.playButton}>
-              <Icon name="play" size={28} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
+          )}
         </View>
+        <Text style={styles.playlistTitle}>{playlist.name || playlist.title}</Text>
+        <Text style={styles.playlistCreator}>{playlist.subtitle || playlist.follower_count ? `${playlist.follower_count} followers` : ''}</Text>
+        <Text style={styles.playlistInfo}>{songs.length} songs</Text>
         
-        {/* Songs list */}
-        <View style={styles.songsContainer}>
-          {MOCK_SONGS.map((song, index) => renderSongItem({ item: song, index }))}
+        {/* Action buttons */}
+        <View style={styles.playlistActions}>
+          <TouchableOpacity style={styles.downloadButton}>
+            <Icon name="arrow-down" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shuffleButton}>
+            <Icon name="shuffle" size={20} color="#000000" />
+            <Text style={styles.shuffleButtonText}>SHUFFLE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.playButton}>
+            <Icon name="play" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
-        
-        {/* Recommended based on this playlist */}
-        <View style={styles.recommendedContainer}>
-          <Text style={styles.sectionTitle}>Recommended for You</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {[1, 2, 3].map((item) => (
-              <TouchableOpacity key={item} style={styles.recommendedItem}>
-                <View style={styles.recommendedCover} />
-                <Text style={styles.recommendedTitle}>Recommended Song {item}</Text>
-                <Text style={styles.recommendedArtist}>Artist Name</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-        
-        {/* Space for mini player */}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+      </View>
       
-      {/* Mini Player */}
+      {/* Songs list */}
+      <View style={styles.songsContainer}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#1DB954" />
+        ) : (
+          <FlatList
+            data={songs}
+            renderItem={renderSongItem}
+            keyExtractor={item => item.id}
+            contentContainerStyle={{ paddingBottom: vlcTrack ? 100 : 20 }}
+          />
+        )}
+      </View>
+      
+      {/* Mini Player (always at bottom, overlays content) */}
       {currentTrack && <MiniPlayer />}
+      {vlcTrack && (
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 100 }}>
+          <MiniVlcPlayer
+            track={vlcTrack}
+            onNext={() => {}}
+            onPrev={() => {}}
+            onClose={() => setVlcTrack(null)}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -243,40 +333,6 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     padding: 8,
-  },
-  recommendedContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 0.5,
-    borderTopColor: '#333333',
-  },
-  sectionTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  recommendedItem: {
-    width: 140,
-    marginRight: 16,
-  },
-  recommendedCover: {
-    width: 140,
-    height: 140,
-    backgroundColor: '#333',
-    marginBottom: 8,
-  },
-  recommendedTitle: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  recommendedArtist: {
-    color: '#AAAAAA',
-    fontSize: 12,
-  },
-  bottomPadding: {
-    height: 80,
   },
 });
 

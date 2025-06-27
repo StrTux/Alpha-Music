@@ -14,6 +14,7 @@ import {
 import TrackPlayer from 'react-native-track-player';
 import { useContext } from 'react';
 import { MusicContext } from '../../context/MusicContext';
+import { useNavigation } from '@react-navigation/native';
 
 import ErrorBoundary from '../../components/common/ErrorBoundary';
 import { useMusic } from '../../context/MusicContext';
@@ -114,8 +115,9 @@ const HomeScreen = () => {
   const [loadingItemId, setLoadingItemId] = useState(null);
   const [vlcTrack, setVlcTrack] = useState(null);
 
-  // Get music context functionsr
+  // Get mrusic context functionsr
   const { playSong, currentTrack } = useMusic();
+  const navigation = useNavigation();
 
   // Get current language code
   const getCurrentLanguageCode = () => {
@@ -346,21 +348,14 @@ const HomeScreen = () => {
   const renderAlbumItem = ({ item }) => (
     <TouchableOpacity
       style={styles.trendingItem}
-      onPress={() => handlePlayTrendingItem(item)}
+      onPress={() => navigation.navigate('AlbumScreen', { album: item })}
       disabled={loadingItemId === item.id}
     >
-      <View style={styles.imageContainer}>
-        <HighQualityImage
-          source={getHighQualityImage(item.image)}
-          style={styles.trendingImage}
-          placeholderSource={require('../../assets/placeholder.png')}
-        />
-        {loadingItemId === item.id && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="small" color="#1DB954" />
-          </View>
-        )}
-      </View>
+      <HighQualityImage
+        source={getHighQualityImage(item.image)}
+        style={styles.trendingImage}
+        placeholderSource={require('../../assets/placeholder.png')}
+      />
       <Text style={styles.trendingTitle} numberOfLines={1}>
         {item.name}
       </Text>
@@ -371,7 +366,11 @@ const HomeScreen = () => {
   );
 
   const renderPlaylistItem = ({ item }) => (
-    <TouchableOpacity style={styles.trendingItem}>
+    <TouchableOpacity 
+      style={styles.trendingItem}
+      onPress={() => navigation.navigate('PlaylistScreen', { playlist: item })}
+      disabled={loadingItemId === item.id}
+    >
       <HighQualityImage
         source={getHighQualityImage(item.image)}
         style={styles.trendingImage}

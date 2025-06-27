@@ -1,300 +1,142 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  FlatList,
-  StatusBar,
-  ScrollView,
+  View, Text, SafeAreaView, TouchableOpacity,
+  FlatList, StatusBar, ActivityIndicator, Image, StyleSheet
 } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MiniVlcPlayer from '../../components/MiniVlcPlayer';
 
-import { useNavigation } from '@react-navigation/native';
-import MiniPlayer from '../playerTab/MiniPlayer';
-import { useMusic } from '../../context/MusicContext';
+const BASE_URL = "https://strtux-main.vercel.app";
 
-// Mock data
-const MOCK_SONGS = [
-  { id: '1', title: 'Track 1', duration: '3:45' },
-  { id: '2', title: 'Track 2', duration: '3:20' },
-  { id: '3', title: 'Track 3', duration: '4:12' },
-  { id: '4', title: 'Track 4', duration: '3:56' },
-  { id: '5', title: 'Track 5', duration: '3:02' },
-  { id: '6', title: 'Track 6', duration: '4:30' },
-  { id: '7', title: 'Track 7', duration: '3:18' },
-];
+export default function AlbumScreen() {
+  const { album } = useRoute().params;
+  const nav = useNavigation();
+  // If album.songs exists and is non-empty, use it directly
+  const [songs, setSongs] = useState(Array.isArray(album.songs) && album.songs.length > 0 ? album.songs : []);
+  const [loading, setLoading] = useState(!(Array.isArray(album.songs) && album.songs.length > 0));
+  const [vlcTrack, setVlcTrack] = useState(null);
 
-const AlbumScreen = () => {
-  const navigation = useNavigation();
-  const { currentTrack } = useMusic();
-  
-  const renderTrackItem = ({ item, index }) => (
-    <TouchableOpacity style={styles.trackItem}>
-      <Text style={styles.trackNumber}>{index + 1}</Text>
-      <View style={styles.trackDetails}>
-        <Text style={styles.trackTitle}>{item.title}</Text>
+  // Fetch album songs only if not provided
+  useEffect(() => {
+    if (songs.length === 0) {
+      setLoading(true);
+      fetch(`${BASE_URL}/album?id=${album.id}`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.status === 'Success' && json.data?.songs) {
+            setSongs(json.data.songs);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [album.id]);
+
+  // Play a specific track
+  const playTrack = (s) => {
+    const link = s.download_url?.[0]?.link;
+    if (!link) return;
+    setVlcTrack({
+      url: link,
+      title: s.name,
+      artist: s.primary_artists || s.subtitle || album.subtitle,
+      artwork: s.image?.[0]?.link || album.image,
+      duration: s.duration,
+    });
+  };
+
+  // Render each song row
+  const renderSong = ({ item }) => (
+    <TouchableOpacity style={styles.songRow} onPress={() => playTrack(item)}>
+      <Image source={{ uri: item.image?.[0]?.link }} style={styles.songArt} />
+      <View style={styles.songInfo}>
+        <Text style={styles.songTitle}>{item.name}</Text>
+        <Text style={styles.songArtist}>{item.primary_artists || item.subtitle}</Text>
       </View>
-      <Text style={styles.trackDuration}>{item.duration}</Text>
-      <TouchableOpacity style={styles.moreButton}>
-        <Icon name="ellipsis-vertical" size={20} color="#FFFFFF" />
-      </TouchableOpacity>
+      <Text style={styles.songDuration}>
+        {item.duration 
+          ? `${Math.floor(item.duration / 60)}:${String(item.duration % 60).padStart(2,'0')}` 
+          : '--:--'}
+      </Text>
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
-      {/* Header with back button */}
+
+      {/* Nav Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="#FFFFFF" />
+        <TouchableOpacity onPress={nav.goBack} style={styles.backBtn}>
+          <Icon name="arrow-back" size={26} color="#fff" />
         </TouchableOpacity>
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Icon name="heart-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Icon name="share-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
-            <Icon name="ellipsis-vertical" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+        <View style={styles.actions}>
+          <Icon name="heart-outline" size={24} color="#fff" />
+          <Icon name="share-outline" size={24} color="#fff" />
+          <Icon name="ellipsis-vertical" size={24} color="#fff" />
         </View>
       </View>
-      
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Album info */}
-        <View style={styles.albumInfoContainer}>
-          <View style={styles.albumCoverContainer}>
-            <View style={styles.albumCover} />
-          </View>
-          <Text style={styles.albumTitle}>Album Title</Text>
-          <Text style={styles.albumArtist}>Artist Name</Text>
-          <Text style={styles.albumInfo}>2022 • 10 songs • 45 min</Text>
-          
-          {/* Action buttons */}
-          <View style={styles.albumActions}>
-            <TouchableOpacity style={styles.shuffleButton}>
-              <Icon name="shuffle" size={20} color="#000000" />
-              <Text style={styles.shuffleButtonText}>SHUFFLE</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.playButton}>
-              <Icon name="play" size={20} color="#FFFFFF" />
-              <Text style={styles.playButtonText}>PLAY</Text>
-            </TouchableOpacity>
-          </View>
+
+      {/* Album Info */}
+      <View style={styles.albumSection}>
+        <Image source={{ uri: album.image }} style={styles.coverArt} />
+        <Text style={styles.albumTitle}>{album.name}</Text>
+        <Text style={styles.albumSub}>{album.subtitle}</Text>
+        <Text style={styles.albumMeta}>
+          {album.year || '—'} • {songs.length} songs
+        </Text>
+      </View>
+
+      {/* Songs List */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#1DB954" style={{ flex:1 }} />
+      ) : (
+        <FlatList
+          data={songs}
+          renderItem={renderSong}
+          keyExtractor={s => s.id}
+          contentContainerStyle={{ paddingBottom: vlcTrack ? 100 : 20 }}
+        />
+      )}
+
+      {/* Mini Player (always at bottom, overlays content) */}
+      {vlcTrack && (
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 100 }}>
+          <MiniVlcPlayer
+            track={vlcTrack}
+            onNext={() => {}}
+            onPrev={() => {}}
+            onClose={() => setVlcTrack(null)}
+          />
         </View>
-        
-        {/* Tracks list */}
-        <View style={styles.tracksContainer}>
-          {MOCK_SONGS.map((song, index) => renderTrackItem({ item: song, index }))}
-        </View>
-        
-        {/* Album info */}
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Release Date</Text>
-          <Text style={styles.infoValue}>January 1, 2022</Text>
-          
-          <Text style={styles.infoLabel}>Genre</Text>
-          <Text style={styles.infoValue}>Pop, Rock</Text>
-          
-          <Text style={styles.infoLabel}>Label</Text>
-          <Text style={styles.infoValue}>Record Label</Text>
-        </View>
-        
-        {/* More from artist */}
-        <View style={styles.moreFromContainer}>
-          <Text style={styles.sectionTitle}>More from Artist Name</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {[1, 2, 3].map((item) => (
-              <TouchableOpacity key={item} style={styles.relatedAlbumItem}>
-                <View style={styles.relatedAlbumCover} />
-                <Text style={styles.relatedAlbumTitle}>Related Album {item}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-        
-        {/* Space for mini player */}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
-      
-      {/* Mini Player */}
-      {currentTrack && <MiniPlayer />}
+      )}
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
+  container: { flex:1, backgroundColor:'#121212' },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    flexDirection:'row', alignItems:'center',
+    justifyContent:'space-between', padding:16
   },
-  backButton: {
-    padding: 8,
-  },
-  headerActions: {
-    flexDirection: 'row',
-  },
-  actionButton: {
-    marginLeft: 16,
-  },
-  albumInfoContainer: {
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-  },
-  albumCoverContainer: {
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  albumCover: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#333',
-  },
-  albumTitle: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  albumArtist: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  albumInfo: {
-    color: '#AAAAAA',
-    fontSize: 14,
-    marginBottom: 24,
-  },
-  albumActions: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  shuffleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    backgroundColor: '#1DB954',
-    marginRight: 16,
-  },
-  shuffleButtonText: {
-    color: '#000000',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  playButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-  },
-  playButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  tracksContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 0.5,
-    borderTopColor: '#333333',
-  },
-  trackItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  trackNumber: {
-    width: 30,
-    color: '#AAAAAA',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  trackDetails: {
-    flex: 1,
-    marginHorizontal: 12,
-  },
-  trackTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-  },
-  trackDuration: {
-    color: '#AAAAAA',
-    fontSize: 14,
-    marginRight: 12,
-  },
-  moreButton: {
-    padding: 8,
-  },
-  infoContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 0.5,
-    borderTopColor: '#333333',
-  },
-  infoLabel: {
-    color: '#AAAAAA',
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  infoValue: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  moreFromContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 0.5,
-    borderTopColor: '#333333',
-  },
-  sectionTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  relatedAlbumItem: {
-    width: 140,
-    marginRight: 16,
-  },
-  relatedAlbumCover: {
-    width: 140,
-    height: 140,
-    backgroundColor: '#333',
-    marginBottom: 8,
-  },
-  relatedAlbumTitle: {
-    color: '#FFFFFF',
-    fontSize: 14,
-  },
-  bottomPadding: {
-    height: 80,
-  },
-});
+  backBtn: { padding:8 },
+  actions: { flexDirection:'row', width:100, justifyContent:'space-between' },
 
-export default AlbumScreen;
+  albumSection: { alignItems:'center', padding:20 },
+  coverArt: { width:200, height:200, borderRadius:8, marginBottom:16 },
+  albumTitle: { color:'#fff', fontSize:24, fontWeight:'bold' },
+  albumSub: { color:'#aaa', fontSize:16, marginTop:4 },
+  albumMeta: { color:'#777', fontSize:14, marginTop:6 },
+
+  songRow: {
+    flexDirection:'row', alignItems:'center',
+    padding:12, borderBottomWidth:1, borderColor:'#333'
+  },
+  songArt: { width:50, height:50, borderRadius:6, marginRight:12 },
+  songInfo: { flex:1 },
+  songTitle: { color:'#fff', fontSize:16 },
+  songArtist: { color:'#aaa', fontSize:14, marginTop:2 },
+  songDuration: { color:'#aaa', fontSize:14, width:50, textAlign:'right' },
+});
