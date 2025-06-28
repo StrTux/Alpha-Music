@@ -47,15 +47,23 @@ export default function AlbumScreen() {
     if (loadingId === song.id) return;
     setLoadingId(song.id);
     let url = '';
+    let quality = '';
     if (song.download_url && Array.isArray(song.download_url)) {
       const highQuality = song.download_url.find(v => v.quality === '320kbps');
-      if (highQuality) url = highQuality.link;
-      else if (song.download_url.length > 0) url = song.download_url[song.download_url.length - 1].link;
+      if (highQuality) {
+        url = highQuality.link;
+        quality = highQuality.quality;
+      } else if (song.download_url.length > 0) {
+        url = song.download_url[song.download_url.length - 1].link;
+        quality = song.download_url[song.download_url.length - 1].quality;
+      }
     }
     if (!url) {
       setLoadingId(null);
       return;
     }
+    console.log('Playing URL:', url);
+    console.log('Playing quality:', quality);
     const track = {
       id: song.id,
       url,

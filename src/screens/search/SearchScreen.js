@@ -16,6 +16,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import apiService from '../../services/ApiService';
 import { debounce } from 'lodash';
+import { useNavigation } from '@react-navigation/native';
+import { useMusic } from '../../context/MusicContext';
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get('window');
@@ -117,6 +119,8 @@ const SearchScreen = () => {
   const [error, setError] = useState(null);
   const [abortController, setAbortController] = useState(null);
   const [activeCategory, setActiveCategory] = useState(CATEGORIES.ALL);
+  const navigation = useNavigation();
+  const { playTrack } = useMusic();
 
   // Create a debounced search function
   const debouncedSearch = useCallback(
@@ -253,29 +257,43 @@ const SearchScreen = () => {
   };
 
   // Handle item selection
-  const handleSongPress = (song) => {
-    console.log('Song selected:', song);
-    // Add your navigation or playback logic here
+  const handleSongPress = async (song) => {
+    // Fetch song details for 320kbps and play in mini player
+    try {
+      const q = encodeURIComponent(`${song.name} ${song.primary_artists || song.subtitle || ''}`);
+      const resp = await fetch(`https://strtux-main.vercel.app/search/songs?q=${q}`);
+      const js = await resp.json();
+      const found = js.data?.results?.[0];
+      if (!found?.download_url?.length) throw new Error('Not found');
+      const url = found.download_url.find(v => v.quality === '320kbps')?.link || found.download_url.pop().link;
+      playTrack({
+        id: found.id,
+        url,
+        title: found.name,
+        artist: found.subtitle || found.artist,
+        artwork: found.image,
+        album: found.album,
+        duration: found.duration,
+      });
+    } catch {
+      alert('Unable to play this song');
+    }
   };
 
   const handleAlbumPress = (album) => {
-    console.log('Album selected:', album);
-    // Add your navigation logic here
+    navigation.navigate('AlbumScreen', { album });
   };
 
   const handleArtistPress = (artist) => {
-    console.log('Artist selected:', artist);
-    // Add your navigation logic here
+    // You can implement artist screen navigation if needed
   };
 
   const handlePlaylistPress = (playlist) => {
-    console.log('Playlist selected:', playlist);
-    // Add your navigation logic here
+    navigation.navigate('PlaylistScreen', { playlist });
   };
 
   const handlePodcastPress = (podcast) => {
-    console.log('Podcast selected:', podcast);
-    // Add your navigation logic here
+    // You can implement podcast screen navigation if needed
   };
 
   // Handle category selection

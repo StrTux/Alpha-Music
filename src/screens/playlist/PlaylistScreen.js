@@ -41,7 +41,6 @@ const PlaylistScreen = () => {
 
   const handlePlaySong = useCallback(async (item) => {
     if (loadingId === item.id) return; // Prevent multiple clicks
-    
     setLoadingId(item.id);
     try {
       const q = encodeURIComponent(`${item.name} ${item.primary_artists || item.subtitle}`);
@@ -49,8 +48,11 @@ const PlaylistScreen = () => {
       const js = await resp.json();
       const song = js.data?.results?.[0];
       if (!song?.download_url?.length) throw new Error('Not found');
-      const url = song.download_url.find(v => v.quality === '320kbps')?.link || song.download_url.pop().link;
-
+      const found = song.download_url.find(v => v.quality === '320kbps');
+      const url = found?.link || song.download_url.pop().link;
+      const quality = found?.quality || song.download_url[song.download_url.length - 1].quality;
+      console.log('Playing URL:', url);
+      console.log('Playing quality:', quality);
       // Play the track using global context
       playTrack({
         id: song.id,
@@ -61,7 +63,6 @@ const PlaylistScreen = () => {
         album: song.album,
         duration: song.duration,
       });
-
     } catch {
       alert('Unable to play this song');
     } finally {
