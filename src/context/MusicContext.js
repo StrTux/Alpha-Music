@@ -1,66 +1,7 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState, useRef } from 'react';
 import TrackPlayer from 'react-native-track-player';
 
-export const MusicContext = createContext();
-
-export const MusicProvider = ({ children }) => {
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playlist, setPlaylist] = useState([]);
-
-  const playTrack = (track) => {
-    setCurrentTrack(track);
-    setIsPlaying(true);
-  };
-
-  const pauseTrack = () => {
-    setIsPlaying(false);
-  };
-
-  const stopTrack = () => {
-    setCurrentTrack(null);
-    setIsPlaying(false);
-  };
-
-  const addToPlaylist = (track) => {
-    setPlaylist(prev => [...prev, track]);
-  };
-
-  const removeFromPlaylist = (trackId) => {
-    setPlaylist(prev => prev.filter(track => track.id !== trackId));
-  };
-
-  const playSong = async (track) => {
-    try {
-      await TrackPlayer.reset();
-      await TrackPlayer.add([track]);
-      await TrackPlayer.play();
-      setCurrentTrack(track);
-      setIsPlaying(true);
-    } catch (error) {
-      console.error('Error playing song:', error);
-      alert('Playback error: ' + error.message);
-    }
-  };
-
-  return (
-    <MusicContext.Provider
-      value={{
-        currentTrack,
-        isPlaying,
-        playlist,
-        playTrack,
-        pauseTrack,
-        stopTrack,
-        addToPlaylist,
-        removeFromPlaylist,
-        playSong,
-      }}
-    >
-      {children}
-    </MusicContext.Provider>
-  );
-};
+const MusicContext = createContext();
 
 export const useMusic = () => {
   const context = useContext(MusicContext);
@@ -68,4 +9,89 @@ export const useMusic = () => {
     throw new Error('useMusic must be used within a MusicProvider');
   }
   return context;
+};
+
+export const MusicProvider = ({ children }) => {
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playlist, setPlaylist] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showMiniPlayer, setShowMiniPlayer] = useState(false);
+
+  const playTrack = (track) => {
+    setCurrentTrack(track);
+    setIsPlaying(true);
+    setShowMiniPlayer(true);
+  };
+
+  const playPlaylist = (tracks, startIndex = 0) => {
+    setPlaylist(tracks);
+    setCurrentIndex(startIndex);
+    setCurrentTrack(tracks[startIndex]);
+    setIsPlaying(true);
+    setShowMiniPlayer(true);
+  };
+
+  const pauseTrack = () => {
+    setIsPlaying(false);
+  };
+
+  const resumeTrack = () => {
+    setIsPlaying(true);
+  };
+
+  const stopTrack = () => {
+    setIsPlaying(false);
+    setCurrentTrack(null);
+    setShowMiniPlayer(false);
+  };
+
+  const nextTrack = () => {
+    if (playlist.length > 0 && currentIndex < playlist.length - 1) {
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      setCurrentTrack(playlist[nextIndex]);
+      setIsPlaying(true);
+    }
+  };
+
+  const prevTrack = () => {
+    if (playlist.length > 0 && currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      setCurrentIndex(prevIndex);
+      setCurrentTrack(playlist[prevIndex]);
+      setIsPlaying(true);
+    }
+  };
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const hideMiniPlayer = () => {
+    setShowMiniPlayer(false);
+  };
+
+  const value = {
+    currentTrack,
+    isPlaying,
+    playlist,
+    currentIndex,
+    showMiniPlayer,
+    playTrack,
+    playPlaylist,
+    pauseTrack,
+    resumeTrack,
+    stopTrack,
+    nextTrack,
+    prevTrack,
+    togglePlayPause,
+    hideMiniPlayer,
+  };
+
+  return (
+    <MusicContext.Provider value={value}>
+      {children}
+    </MusicContext.Provider>
+  );
 };

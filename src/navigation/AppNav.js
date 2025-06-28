@@ -6,11 +6,13 @@ import {
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigationContainerRef} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useAuth} from '../context/AuthContext';
+import {MusicProvider} from '../context/MusicContext';
+import GlobalMiniPlayer from '../components/GlobalMiniPlayer';
 
 // Import all screens
 import HomeScreen from '../screens/home/HomeScreen';
@@ -87,15 +89,24 @@ const TabNavigator = () => {
 const AppNav = () => {
   const {userToken, isLoading} = useAuth();
   const [isAppReady, setIsAppReady] = useState(false);
+  const navigationRef = useNavigationContainerRef();
+  const [currentRoute, setCurrentRoute] = useState();
 
   useEffect(() => {
     // Simulate a short delay to ensure everything is initialized
     const timer = setTimeout(() => {
       setIsAppReady(true);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, []);
+
+  // Listen to navigation changes
+  useEffect(() => {
+    const unsubscribe = navigationRef.addListener('state', () => {
+      setCurrentRoute(navigationRef.getCurrentRoute()?.name);
+    });
+    return () => unsubscribe && unsubscribe();
+  }, [navigationRef]);
 
   if (isLoading || !isAppReady) {
     return (
@@ -108,24 +119,27 @@ const AppNav = () => {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar backgroundColor="#000" barStyle="light-content" />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {userToken ? (
-          <>
-            <Stack.Screen name="MainTabs" component={TabNavigator} />
-            <Stack.Screen name="Player" component={PlayerScreen} />
-            <Stack.Screen name="Artist" component={ArtistScreen} />
-            <Stack.Screen name="AlbumScreen" component={AlbumScreen} />
-            <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
-            <Stack.Screen name="AudioSettings" component={AudioSettings} />
-            <Stack.Screen name="PodcastCategorieScreen" component={PodcastCategorieScreen} />
-          </>
-        ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <MusicProvider>
+      <NavigationContainer ref={navigationRef}>
+        <StatusBar backgroundColor="#000" barStyle="light-content" />
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {userToken ? (
+            <>
+              <Stack.Screen name="MainTabs" component={TabNavigator} />
+              <Stack.Screen name="Player" component={PlayerScreen} />
+              <Stack.Screen name="Artist" component={ArtistScreen} />
+              <Stack.Screen name="AlbumScreen" component={AlbumScreen} />
+              <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
+              <Stack.Screen name="AudioSettings" component={AudioSettings} />
+              <Stack.Screen name="PodcastCategorieScreen" component={PodcastCategorieScreen} />
+            </>
+          ) : (
+            <Stack.Screen name="Auth" component={AuthNavigator} />
+          )}
+        </Stack.Navigator>
+        <GlobalMiniPlayer isPlaylistOrAlbumScreen={currentRoute === 'PlaylistScreen' || currentRoute === 'AlbumScreen'} />
+      </NavigationContainer>
+    </MusicProvider>
   );
 };
 

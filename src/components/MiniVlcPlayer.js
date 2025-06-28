@@ -14,13 +14,18 @@ import { VLCPlayer } from 'react-native-vlc-media-player';
 
 const { width } = Dimensions.get('window');
 
-const MiniVlcPlayer = ({ track, onNext, onPrev, onClose }) => {
-  const [paused, setPaused] = useState(false);
+const MiniVlcPlayer = ({ track, onNext, onPrev, onClose, isPlaying: contextIsPlaying, onTogglePlayPause }) => {
+  const [paused, setPaused] = useState(!contextIsPlaying);
   const [liked, setLiked] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const playerRef = useRef(null);
   const isDark = Appearance.getColorScheme() === 'dark';
+
+  // Sync with context isPlaying state
+  useEffect(() => {
+    setPaused(!contextIsPlaying);
+  }, [contextIsPlaying]);
 
   // Reset on track change
   useEffect(() => {
@@ -80,7 +85,10 @@ const MiniVlcPlayer = ({ track, onNext, onPrev, onClose }) => {
           <Text style={styles.title} numberOfLines={1}>{track.title}</Text>
           <Text style={styles.artist} numberOfLines={1}>{track.artist}</Text>
         </View>
-        <TouchableOpacity onPress={() => setPaused(!paused)} style={styles.btn}>
+        <TouchableOpacity onPress={onPrev} style={styles.btn}>
+          <Feather name="skip-back" size={18} color={isDark ? '#fff' : '#000'} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onTogglePlayPause} style={styles.btn}>
           <Feather name={paused ? 'play' : 'pause'} size={20} color="#1DB954" />
         </TouchableOpacity>
         <TouchableOpacity onPress={onNext} style={styles.btn}>
@@ -113,12 +121,15 @@ const MiniVlcPlayer = ({ track, onNext, onPrev, onClose }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: width - 24,
-    borderRadius: 14,
-    padding: 8,
-    margin: 12,
+    borderRadius: 6,
+    padding: 10,
+    marginHorizontal: 12,
+    marginBottom: 10,
     elevation: 2,
-  },
+    alignSelf: 'center',
+    backgroundColor: 'red', // or dynamic via isDark
+    width: width - 14,
+  },  
   dark: { backgroundColor: '#111' },
   light: { backgroundColor: '#fff' },
   slider: { width: '100%', height: 28 },

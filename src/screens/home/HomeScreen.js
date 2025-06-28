@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -113,10 +113,9 @@ const HomeScreen = () => {
     artists: true,
   });
   const [loadingItemId, setLoadingItemId] = useState(null);
-  const [vlcTrack, setVlcTrack] = useState(null);
 
-  // Get mrusic context functionsr
-  const { playSong, currentTrack } = useMusic();
+  // Get music context functions
+  const { playTrack, currentTrack } = useMusic();
   const navigation = useNavigation();
 
   // Get current language code
@@ -209,7 +208,8 @@ const HomeScreen = () => {
     fetchTopArtists();
   }, []);
 
-  const renderLanguageButton = ({ item }) => (
+  // Render language button
+  const renderLanguageButton = useCallback(({ item }) => (
     <TouchableOpacity
       style={[
         styles.languageButton,
@@ -226,130 +226,42 @@ const HomeScreen = () => {
         {item.name}
       </Text>
     </TouchableOpacity>
-  );
+  ), [selectedLanguage]);
 
-  const renderTrendingItem = ({ item }) => (
+  // Render trending item
+  const renderTrendingItem = useCallback(({ item }) => (
     <TouchableOpacity
       style={styles.trendingItem}
       onPress={() => handlePlayTrendingItem(item)}
       disabled={loadingItemId === item.id}
+      activeOpacity={0.7}
     >
-      <View style={styles.imageContainer}>
-        <HighQualityImage
-          source={getHighQualityImage(item.image)}
-          style={styles.trendingImage}
-          placeholderSource={require('../../assets/placeholder.png')}
-        />
-        {loadingItemId === item.id && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="small" color="#1DB954" />
-          </View>
-        )}
-      </View>
+      <HighQualityImage
+        source={getHighQualityImage(item.image)}
+        style={styles.trendingImage}
+        placeholderSource={require('../../assets/placeholder.png')}
+      />
       <Text style={styles.trendingTitle} numberOfLines={1}>
         {item.name || item.title}
       </Text>
       <Text style={styles.trendingArtist} numberOfLines={1}>
         {item.subtitle || item.artist || ''}
       </Text>
+      {loadingItemId === item.id && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="small" color="#1DB954" />
+        </View>
+      )}
     </TouchableOpacity>
-  );
+  ), [handlePlayTrendingItem, loadingItemId]);
 
-  // Function to handle playing a trending item
-  const handlePlayTrendingItem = async (item) => {
-    try {
-      // Set loading state for this specific item
-      setLoadingItemId(item.id);
-      console.log('handlePlayTrendingItem: item:', item);
-
-      // Create a query using the music name and artist
-      const musicName = item.name || item.title || '';
-      const artistName = item.subtitle || item.artist || '';
-      const query = encodeURIComponent(`${musicName} ${artistName}`);
-      console.log('handlePlayTrendingItem: query:', query);
-
-      // Fetch songs using the API
-      const response = await fetch(`${BASE_URL}/search/songs?q=${query}`);
-      const data = await response.json();
-      console.log('handlePlayTrendingItem: API response:', data);
-
-      if (data.status === 'Success' && data.data && data.data.results && data.data.results.length > 0) {
-        // Get the first song from results
-        const song = data.data.results[0];
-        console.log('handlePlayTrendingItem: song:', song);
-
-        // Extract the high quality download URL (320kbps)
-        let downloadUrl = '';
-        if (song.download_url && Array.isArray(song.download_url)) {
-          // Find the 320kbps version
-          const highQualityVersion = song.download_url.find(version => version.quality === '320kbps');
-          if (highQualityVersion) {
-            downloadUrl = highQualityVersion.link;
-          } else if (song.download_url.length > 0) {
-            // Fallback to the highest quality available
-            downloadUrl = song.download_url[song.download_url.length - 1].link;
-          }
-        }
-        console.log('handlePlayTrendingItem: downloadUrl:', downloadUrl);
-
-        if (downloadUrl.endsWith('.mp4')) {
-          setVlcTrack({
-            url: downloadUrl,
-            title: song.name,
-            artist: song.subtitle || song.artist,
-            artwork: getHighQualityImage(song.image),
-            duration: song.duration || 0,
-          });
-          setLoadingItemId(null);
-          return;
-        }
-
-        // Prepare the track for playing
-        const track = {
-          id: song.id,
-          url: downloadUrl,
-          title: song.name,
-          artist: song.subtitle || song.artist_map?.primary_artists?.[0]?.name || '',
-          artwork: getHighQualityImage(song.image),
-          album: song.album,
-          duration: song.duration
-        };
-        console.log('handlePlayTrendingItem: track:', track);
-
-        // Safety check for playable URL
-        if (!downloadUrl || !downloadUrl.startsWith('http')) {
-          console.error('Invalid or missing audio URL:', downloadUrl);
-          alert('This song cannot be played due to invalid audio URL.');
-          setLoadingItemId(null);
-          return;
-        }
-
-        // Play the track using the music context
-        if (typeof playSong === 'function') {
-          console.log('Calling playSong with track:', track);
-          await playSong(track);
-          console.log('playSong finished');
-        } else {
-          console.warn('playSong is not defined or not a function');
-        }
-
-        console.log('Track added to player:', track);
-      } else {
-        console.error('No songs found for query:', query);
-      }
-    } catch (error) {
-      console.error('Error playing trending item:', error);
-    } finally {
-      // Clear loading state
-      setLoadingItemId(null);
-    }
-  };
-
-  const renderAlbumItem = ({ item }) => (
+  // Render album item
+  const renderAlbumItem = useCallback(({ item }) => (
     <TouchableOpacity
       style={styles.trendingItem}
       onPress={() => navigation.navigate('AlbumScreen', { album: item })}
       disabled={loadingItemId === item.id}
+      activeOpacity={0.7}
     >
       <HighQualityImage
         source={getHighQualityImage(item.image)}
@@ -363,13 +275,15 @@ const HomeScreen = () => {
         {item.subtitle || item.primaryArtists || ''}
       </Text>
     </TouchableOpacity>
-  );
+  ), [navigation, loadingItemId]);
 
-  const renderPlaylistItem = ({ item }) => (
+  // Render playlist item
+  const renderPlaylistItem = useCallback(({ item }) => (
     <TouchableOpacity 
       style={styles.trendingItem}
       onPress={() => navigation.navigate('PlaylistScreen', { playlist: item })}
       disabled={loadingItemId === item.id}
+      activeOpacity={0.7}
     >
       <HighQualityImage
         source={getHighQualityImage(item.image)}
@@ -383,10 +297,11 @@ const HomeScreen = () => {
         {item.subtitle || item.follower_count ? `${item.follower_count} followers` : ''}
       </Text>
     </TouchableOpacity>
-  );
+  ), [navigation, loadingItemId]);
 
-  const renderArtistItem = ({ item }) => (
-    <TouchableOpacity style={styles.artistItem}>
+  // Render artist item
+  const renderArtistItem = useCallback(({ item }) => (
+    <TouchableOpacity style={styles.artistItem} activeOpacity={0.7}>
       <HighQualityImage
         source={getHighQualityImage(item.image)}
         style={styles.artistImage}
@@ -396,21 +311,21 @@ const HomeScreen = () => {
         {item.name}
       </Text>
     </TouchableOpacity>
-  );
+  ), []);
 
   // Loading indicator component
-  const LoadingIndicator = () => (
+  const LoadingIndicator = useCallback(() => (
     <View style={styles.loadingContainer}>
       <ActivityIndicator size="large" color="#1DB954" />
     </View>
-  );
+  ), []);
 
-  const renderSectionHeader = (title) => (
+  const renderSectionHeader = useCallback((title) => (
     <Text style={styles.sectionTitle}>{title}</Text>
-  );
+  ), []);
 
   // Horizontal row component for category content
-  const HorizontalRow = ({ title, data, renderItem, isLoading }) => {
+  const HorizontalRow = useCallback(({ title, data, renderItem, isLoading }) => {
     if (isLoading) {
       return (
         <View style={styles.section}>
@@ -456,7 +371,7 @@ const HomeScreen = () => {
         />
       </View>
     );
-  };
+  }, [renderSectionHeader, LoadingIndicator]);
 
   // Playlist Grid Component
   const PlaylistGrid = () => (
@@ -495,15 +410,75 @@ const HomeScreen = () => {
     </View>
   );
 
-  // Define sections data for the main FlatList
-  const sections = [
-    { id: 'languages', render: () => <LanguageSelector /> },
-    { id: 'playlists', render: () => <PlaylistGrid /> },
-    { id: 'trending', render: () => <HorizontalRow title="Trending Now" data={trendingSongs} renderItem={renderTrendingItem} isLoading={loading.trending} /> },
-    { id: 'albums', render: () => <HorizontalRow title="Top Albums" data={topAlbums} renderItem={renderAlbumItem} isLoading={loading.albums} /> },
-    { id: 'playlists_row', render: () => <HorizontalRow title="Top Playlists" data={topPlaylists} renderItem={renderPlaylistItem} isLoading={loading.playlists} /> },
-    { id: 'artists', render: () => <HorizontalRow title="Top Artists" data={topArtists} renderItem={renderArtistItem} isLoading={loading.artists} /> },
-  ];
+  const handlePlayTrendingItem = async (item) => {
+    try {
+      // Set loading state for this specific item
+      setLoadingItemId(item.id);
+      console.log('handlePlayTrendingItem: item:', item);
+
+      // Create a query using the music name and artist
+      const musicName = item.name || item.title || '';
+      const artistName = item.subtitle || item.artist || '';
+      const query = encodeURIComponent(`${musicName} ${artistName}`);
+      console.log('handlePlayTrendingItem: query:', query);
+
+      // Fetch songs using the API
+      const response = await fetch(`${BASE_URL}/search/songs?q=${query}`);
+      const data = await response.json();
+      console.log('handlePlayTrendingItem: API response:', data);
+
+      if (data.status === 'Success' && data.data && data.data.results && data.data.results.length > 0) {
+        // Get the first song from results
+        const song = data.data.results[0];
+        console.log('handlePlayTrendingItem: song:', song);
+
+        // Extract the high quality download URL (320kbps)
+        let downloadUrl = '';
+        if (song.download_url && Array.isArray(song.download_url)) {
+          // Find the 320kbps version
+          const highQualityVersion = song.download_url.find(version => version.quality === '320kbps');
+          if (highQualityVersion) {
+            downloadUrl = highQualityVersion.link;
+          } else if (song.download_url.length > 0) {
+            // Fallback to the highest quality available
+            downloadUrl = song.download_url[song.download_url.length - 1].link;
+          }
+        }
+        console.log('handlePlayTrendingItem: downloadUrl:', downloadUrl);
+
+        // Safety check for playable URL
+        if (!downloadUrl || !downloadUrl.startsWith('http')) {
+          console.error('Invalid or missing audio URL:', downloadUrl);
+          alert('This song cannot be played due to invalid audio URL.');
+          setLoadingItemId(null);
+          return;
+        }
+
+        // Prepare the track for playing
+        const track = {
+          id: song.id,
+          url: downloadUrl,
+          title: song.name,
+          artist: song.subtitle || song.artist_map?.primary_artists?.[0]?.name || '',
+          artwork: getHighQualityImage(song.image),
+          album: song.album,
+          duration: song.duration
+        };
+        console.log('handlePlayTrendingItem: track:', track);
+
+        // Play the track using the global music context
+        playTrack(track);
+        console.log('Track added to global player:', track);
+      } else {
+        console.error('No songs found for query:', query);
+      }
+    } catch (error) {
+      console.error('Error playing trending item:', error);
+    } finally {
+      // Clear loading state
+      setLoadingItemId(null);
+    }
+  };
 
   return (
     <ErrorBoundary>
@@ -515,38 +490,33 @@ const HomeScreen = () => {
           </View>
 
           <View style={styles.mainContent}>
-            {/* Example usage of VlcAudioPlayer for .mp4 (AAC) audio playback */}
-            <VlcAudioPlayer
-              url="http://aac.saavncdn.com/760/2e9b1b6e7e2e4e2b8e6e6e2b8e6e6e2b_320.mp4"
-              title="Sapphire – Ed Sheeran"
-            />
-            {/* Main content using a single FlatList to avoid nesting issues */}
+            <LanguageSelector />
+            <PlaylistGrid />
+
             <FlatList
-              data={sections}
-              renderItem={({ item }) => item.render()}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
+              data={[
+                { title: 'Trending Now', data: trendingSongs, renderItem: renderTrendingItem, isLoading: loading.trending },
+                { title: 'Top Albums', data: topAlbums, renderItem: renderAlbumItem, isLoading: loading.albums },
+                { title: 'Top Playlists', data: topPlaylists, renderItem: renderPlaylistItem, isLoading: loading.playlists },
+                { title: 'Top Artists', data: topArtists, renderItem: renderArtistItem, isLoading: loading.artists },
+              ]}
+              renderItem={({ item }) => (
+                <HorizontalRow
+                  title={item.title}
+                  data={item.data}
+                  renderItem={item.renderItem}
+                  isLoading={item.isLoading}
+                />
+              )}
+              keyExtractor={(item) => item.title}
               contentContainerStyle={styles.contentContainer}
+              showsVerticalScrollIndicator={false}
               initialNumToRender={3}
               maxToRenderPerBatch={3}
               windowSize={5}
               removeClippedSubviews={true}
             />
           </View>
-
-          {currentTrack && (
-            console.log('Rendering VideoPlayer with currentTrack:', currentTrack),
-            <VideoPlayer sourceUrl={currentTrack.url} />
-          )}
-
-          {vlcTrack && (
-            <MiniVlcPlayer
-              track={vlcTrack}
-              onNext={() => { /* TODO: implement next track logic */ }}
-              onPrev={() => { /* TODO: implement previous track logic */ }}
-              onClose={() => setVlcTrack(null)}
-            />
-          )}
         </View>
       </SafeAreaView>
     </ErrorBoundary>
