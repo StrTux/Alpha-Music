@@ -150,8 +150,8 @@ const SearchScreen = () => {
 
         // Search both JioSaavn and Spotify
         const [jioSaavnResponse, spotifyPlaylists] = await Promise.allSettled([
-          apiService.search(searchQuery, 20, controller.signal),
-          SpotifyService.searchPlaylists(searchQuery, 5)
+          apiService.search(searchQuery, 100, controller.signal),
+          SpotifyService.searchPlaylists(searchQuery, 50)
         ]);
 
         let combinedResults = {};

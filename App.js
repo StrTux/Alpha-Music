@@ -24,6 +24,8 @@ LogBox.ignoreLogs([
   'Warning: componentWillReceiveProps',
   'Warning: componentWillMount',
   'Non-serializable values were found in the navigation state',
+  'The "EXNativeModulesProxy" native module is not exported',
+  'The global process.env.EXPO_OS is not defined',
 ]);
 
 // Enhanced network status component

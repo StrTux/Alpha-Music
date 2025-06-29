@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   songItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, height: 60 },
   songNumber: { width: 30, color: '#aaa', textAlign: 'center' },
   songInfo: { flex: 1, marginHorizontal: 12 },
-  songTitle: { color: '#fff', fontSize: 16 },
+  songTitle: { color: '#fff', fontSize: 12 },
   songArtist: { color: '#ccc', fontSize: 10 },
   songDur: { color: '#ccc', fontSize: 12, marginRight: 12 },
   moreBtn: { padding: 8 },
