@@ -537,7 +537,7 @@ const apiService = {
   // ============ SEARCH ENDPOINTS ============
 
   // Global search (songs, albums, artists)
-  search: async (query, limit = 20, abortSignal = null) => {
+  search: async (query, limit = 100, abortSignal = null) => {
     if (useMockData) {
       return getMockSearchResults(query);
     }
@@ -566,7 +566,7 @@ const apiService = {
   },
 
   // Search specifically for songs
-  searchSongs: async (query, limit = 20) => {
+  searchSongs: async (query, limit = 100) => {
     if (useMockData) {
       return getMockSearchResults(query, 'songs');
     }
@@ -584,7 +584,7 @@ const apiService = {
   },
 
   // Search specifically for albums
-  searchAlbums: async (query, limit = 20) => {
+  searchAlbums: async (query, limit = 100) => {
     if (useMockData) {
       return getMockSearchResults(query, 'albums');
     }
@@ -733,7 +733,7 @@ const apiService = {
   },
 
   // Get artist songs
-  getArtistSongs: async (artistId, limit = 20) => {
+  getArtistSongs: async (artistId, limit = 100) => {
     if (useMockData) {
       return {
         ...mockResponseFormat,
@@ -760,7 +760,7 @@ const apiService = {
   },
 
   // Get artist albums
-  getArtistAlbums: async (artistId, limit = 20) => {
+  getArtistAlbums: async (artistId, limit = 100) => {
     if (useMockData) {
       return {
         ...mockResponseFormat,
@@ -865,7 +865,7 @@ const apiService = {
   // ============ TRENDING/RECOMMENDATIONS ENDPOINTS ============
 
   // Get trending songs - helper method used by old code
-  getTrendingSongs: async (limit = 20) => {
+  getTrendingSongs: async (limit = 100) => {
     if (useMockData) {
       return getMockTrendingSongs();
     }
@@ -900,7 +900,7 @@ const apiService = {
   },
 
   // Get new releases - helper method used by old code
-  getNewReleases: async (limit = 20) => {
+  getNewReleases: async (limit = 100) => {
     if (useMockData) {
       return getMockNewReleases();
     }

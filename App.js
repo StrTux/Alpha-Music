@@ -257,39 +257,21 @@ const App = () => {
   }
 
   // Main App with providers and network status bar
-  try {
-    const isNetworkAvailable =
-      networkStatus.isConnected && networkStatus.isInternetReachable;
+  const isNetworkAvailable =
+    networkStatus.isConnected && networkStatus.isInternetReachable;
 
-    return (
-      <>
-        <StatusBar barStyle="light-content" backgroundColor="#121212" />
-        <View style={styles.container}>
-          <AppNav />
-          <NetworkStatusBar
-            isConnected={isNetworkAvailable}
-            onRetry={handleNetworkRetry}
-          />
-        </View>
-      </>
-    );
-  } catch (error) {
-    console.error('Error in App component:', error);
-
-    // Fallback UI in case providers fail to load
-    return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.errorText}>
-          There was an error loading the app.
-        </Text>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={handleResetPlayer}>
-          <Text style={styles.buttonText}>Reset & Try Again</Text>
-        </TouchableOpacity>
+  return (
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+      <View style={styles.container}>
+        <AppNav />
+        <NetworkStatusBar
+          isConnected={isNetworkAvailable}
+          onRetry={handleNetworkRetry}
+        />
       </View>
-    );
-  }
+    </>
+  );
 };
 
 const styles = StyleSheet.create({

@@ -19,7 +19,8 @@ import SpotifyService from '../../services/SpotifyService';
 import { debounce } from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import { useMusic } from '../../context/MusicContext';
-import { getAllSpotifyTracks } from '../services/spotifytrack'; // You may need to expose this for frontend use
+import { getAllSpotifyTracks } from '../../services/spotifytrack';
+import { getArtistTopTracks } from '../../services/artistsearch';
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get('window');
@@ -148,10 +149,11 @@ const SearchScreen = () => {
         const controller = new AbortController();
         setAbortController(controller);
 
-        // Search both JioSaavn and Spotify
-        const [jioSaavnResponse, spotifyPlaylists] = await Promise.allSettled([
-          apiService.search(searchQuery, 100, controller.signal),
-          SpotifyService.searchPlaylists(searchQuery, 50)
+        // Search both JioSaavn and Spotify with higher limits
+        const [jioSaavnResponse, spotifyPlaylists, spotifyArtistTracks] = await Promise.allSettled([
+          apiService.search(searchQuery, 200, controller.signal), // Increased from 100 to 200
+          SpotifyService.searchPlaylists(searchQuery, 100), // Increased from 50 to 100
+          getArtistTopTracks(searchQuery) // Direct Spotify artist search
         ]);
 
         let combinedResults = {};
@@ -160,19 +162,149 @@ const SearchScreen = () => {
         if (jioSaavnResponse.status === 'fulfilled' && jioSaavnResponse.value) {
           if (jioSaavnResponse.value.status === 'Success') {
             combinedResults = { ...jioSaavnResponse.value.data };
+            console.log('Music fetched from JioSaavn');
           }
         }
 
-        // Handle Spotify playlist results
+        // Handle Spotify playlist results (from 1.js - working properly)
         if (spotifyPlaylists.status === 'fulfilled' && spotifyPlaylists.value.length > 0) {
           if (!combinedResults.playlists) {
             combinedResults.playlists = { data: [] };
           }
+          // Format Spotify playlists exactly like in 1.js
+          const formattedSpotifyPlaylists = spotifyPlaylists.value.map(playlist => ({
+            ...playlist,
+            source: 'spotify',
+            spotify_playlist: true,
+            spotify_id: playlist.id,
+            title: playlist.name,
+            name: playlist.name,
+            owner: playlist.owner?.display_name || playlist.owner?.id || 'Spotify',
+          }));
           // Add Spotify playlists to the beginning
           combinedResults.playlists.data = [
-            ...spotifyPlaylists.value,
+            ...formattedSpotifyPlaylists,
             ...(combinedResults.playlists.data || [])
           ];
+          // Also add to top results if no top results exist
+          if (!combinedResults.topQuery || !combinedResults.topQuery.data || combinedResults.topQuery.data.length === 0) {
+            if (!combinedResults.topQuery) {
+              combinedResults.topQuery = { data: [] };
+            }
+            // Add first few Spotify playlists as top results
+            combinedResults.topQuery.data = [
+              ...formattedSpotifyPlaylists.slice(0, 3),
+              ...(combinedResults.topQuery.data || [])
+            ];
+          }
+        } else if (spotifyPlaylists.status === 'rejected') {
+          // Try direct call as fallback
+          try {
+            const directSpotifyPlaylists = await SpotifyService.searchPlaylists(searchQuery, 20);
+            if (directSpotifyPlaylists && directSpotifyPlaylists.length > 0) {
+              if (!combinedResults.playlists) {
+                combinedResults.playlists = { data: [] };
+              }
+              // Add direct Spotify playlists to the beginning
+              combinedResults.playlists.data = [
+                ...directSpotifyPlaylists,
+                ...(combinedResults.playlists.data || [])
+              ];
+            }
+          } catch (fallbackError) {}
+        } else {
+          // Try direct call as fallback
+          try {
+            const directSpotifyPlaylists = await SpotifyService.searchPlaylists(searchQuery, 20);
+            if (directSpotifyPlaylists && directSpotifyPlaylists.length > 0) {
+              if (!combinedResults.playlists) {
+                combinedResults.playlists = { data: [] };
+              }
+              // Add direct Spotify playlists to the beginning
+              combinedResults.playlists.data = [
+                ...directSpotifyPlaylists,
+                ...(combinedResults.playlists.data || [])
+              ];
+            }
+          } catch (fallbackError) {}
+        }
+
+        // Handle Spotify artist tracks (from 2.js - complete song data)
+        if (spotifyArtistTracks.status === 'fulfilled' && spotifyArtistTracks.value && spotifyArtistTracks.value.length > 0) {
+          // Format for Songs section
+          if (!combinedResults.songs) {
+            combinedResults.songs = { data: [] };
+          }
+          
+          const formattedSpotifyTracks = spotifyArtistTracks.value.map((track, index) => ({
+            id: `spotify_${track.id}_${index}`,
+            name: track.name,
+            subtitle: track.artists,
+            primary_artists: track.artists,
+            image: track.image || '',
+            source: 'spotify',
+            spotify_id: track.id,
+            duration: track.duration,
+            album: track.album,
+          }));
+          
+          // Add Spotify tracks to the beginning of songs
+          combinedResults.songs.data = [
+            ...formattedSpotifyTracks,
+            ...(combinedResults.songs.data || [])
+          ];
+          
+          // Also add to top results if no top results exist
+          if (!combinedResults.topQuery || !combinedResults.topQuery.data || combinedResults.topQuery.data.length === 0) {
+            if (!combinedResults.topQuery) {
+              combinedResults.topQuery = { data: [] };
+            }
+            // Add first few Spotify tracks as top results
+            combinedResults.topQuery.data = [
+              ...formattedSpotifyTracks.slice(0, 3),
+              ...(combinedResults.topQuery.data || [])
+            ];
+          }
+        }
+
+        // If the top result is an artist from JioSaavn, also fetch their Spotify tracks
+        let artistName = null;
+        if (combinedResults.artists && combinedResults.artists.data && combinedResults.artists.data.length > 0) {
+          artistName = combinedResults.artists.data[0].name;
+        }
+        if (artistName && artistName.toLowerCase() !== searchQuery.toLowerCase()) {
+          // Only fetch if it's a different artist than what we already searched
+          const additionalSpotifyTracks = await getArtistTopTracks(artistName);
+          if (additionalSpotifyTracks && additionalSpotifyTracks.length > 0) {
+            // Format for Songs section
+            if (!combinedResults.songs) combinedResults.songs = { data: [] };
+            
+            // Create a set of existing Spotify IDs to avoid duplicates
+            const existingSpotifyIds = new Set(
+              combinedResults.songs.data
+                .filter(item => item.spotify_id)
+                .map(item => item.spotify_id)
+            );
+            
+            const additionalFormattedTracks = additionalSpotifyTracks
+              .filter(track => !existingSpotifyIds.has(track.id)) // Remove duplicates
+              .map((track, index) => ({
+                id: `spotify_${track.id}_additional_${index}`,
+                name: track.name,
+                subtitle: track.artists,
+                primary_artists: track.artists,
+                image: track.image || '',
+                source: 'spotify',
+                spotify_id: track.id,
+                duration: track.duration,
+                album: track.album,
+              }));
+            
+            combinedResults.songs.data = [
+              ...additionalFormattedTracks,
+              ...(combinedResults.songs.data || [])
+            ];
+          }
         }
 
         if (Object.keys(combinedResults).length > 0) {
@@ -292,9 +424,57 @@ const SearchScreen = () => {
     }
   };
 
+  // Test function to debug Spotify playlist search
+  const testSpotifyPlaylistSearch = async () => {
+    try {
+      console.log('🧪 Testing Spotify playlist search for "Arijit Singh"');
+      const playlists = await SpotifyService.searchPlaylists('Arijit Singh', 10);
+      console.log('🧪 Test result:', playlists);
+      
+      if (playlists && playlists.length > 0) {
+        // Create a test result structure
+        const testResults = {
+          playlists: { data: playlists },
+          topQuery: { data: playlists.slice(0, 3) }
+        };
+        
+        console.log('🧪 Test results structure:', testResults);
+        setResults(testResults);
+        applyFilter(testResults, activeCategory);
+      } else {
+        console.log('🧪 No playlists found in test');
+      }
+    } catch (error) {
+      console.error('🧪 Test failed:', error);
+    }
+  };
+
   // Handle item selection
   const handleSongPress = async (song) => {
-    // Fetch song details for 320kbps and play in mini player
+    // If it's a Spotify song, search JioSaavn and play if found
+    if (song.source === 'spotify') {
+      try {
+        const q = encodeURIComponent(`${song.name} ${song.subtitle || ''}`);
+        const resp = await fetch(`https://strtux-main.vercel.app/search/songs?q=${q}`);
+        const js = await resp.json();
+        const found = js.data?.results?.[0];
+        if (!found?.download_url?.length) throw new Error('Not found');
+        const url = found.download_url.find(v => v.quality === '320kbps')?.link || found.download_url.pop().link;
+        playTrack({
+          id: found.id,
+          url,
+          title: found.name,
+          artist: found.subtitle || found.artist,
+          artwork: found.image,
+          album: found.album,
+          duration: found.duration,
+        });
+      } catch {
+        alert('Unable to play this song');
+      }
+      return;
+    }
+    // Otherwise, use existing logic for JioSaavn songs
     try {
       const q = encodeURIComponent(`${song.name} ${song.primary_artists || song.subtitle || ''}`);
       const resp = await fetch(`https://strtux-main.vercel.app/search/songs?q=${q}`);
@@ -347,7 +527,7 @@ const SearchScreen = () => {
     setActiveCategory(category);
   };
 
-  // Clear search
+  // Clear searcha
   const handleClearSearch = () => {
     setQuery('');
     setResults(null);
@@ -366,15 +546,15 @@ const SearchScreen = () => {
         <View key="top" style={styles.section}>
           <Text style={styles.sectionTitle}>Top Results</Text>
           <FlatList
-            data={filteredResults.topQuery.data.slice(0, 5)}
+            data={filteredResults.topQuery.data}
             renderItem={({ item }) => {
               // Determine item type and render appropriate component
-              if (item.type === 'artist') {
+              if (item.spotify_playlist || item.type === 'playlist') {
+                return <PlaylistItem item={item} onPress={handlePlaylistPress} />;
+              } else if (item.type === 'artist') {
                 return <ArtistItem item={item} onPress={handleArtistPress} />;
               } else if (item.type === 'album') {
                 return <AlbumItem item={item} onPress={handleAlbumPress} />;
-              } else if (item.type === 'playlist') {
-                return <PlaylistItem item={item} onPress={handlePlaylistPress} />;
               } else if (item.type === 'podcast' || item.type === 'show') {
                 return <PodcastItem item={item} onPress={handlePodcastPress} />;
               } else {
@@ -395,7 +575,7 @@ const SearchScreen = () => {
         <View key="artists" style={styles.section}>
           <Text style={styles.sectionTitle}>Artists</Text>
           <FlatList
-            data={filteredResults.artists.data.slice(0, 5)}
+            data={filteredResults.artists.data}
             renderItem={({ item }) => <ArtistItem item={item} onPress={handleArtistPress} />}
             keyExtractor={(item) => `artist-${item.id || item.name || Math.random().toString()}`}
             scrollEnabled={false}
@@ -410,7 +590,7 @@ const SearchScreen = () => {
         <View key="albums" style={styles.section}>
           <Text style={styles.sectionTitle}>Albums</Text>
           <FlatList
-            data={filteredResults.albums.data.slice(0, 5)}
+            data={filteredResults.albums.data}
             renderItem={({ item }) => <AlbumItem item={item} onPress={handleAlbumPress} />}
             keyExtractor={(item) => `album-${item.id || item.name || Math.random().toString()}`}
             scrollEnabled={false}
@@ -425,7 +605,7 @@ const SearchScreen = () => {
         <View key="songs" style={styles.section}>
           <Text style={styles.sectionTitle}>Songs</Text>
           <FlatList
-            data={filteredResults.songs.data.slice(0, 5)}
+            data={filteredResults.songs.data}
             renderItem={({ item }) => <SongItem item={item} onPress={handleSongPress} />}
             keyExtractor={(item) => `song-${item.id || item.name || Math.random().toString()}`}
             scrollEnabled={false}
@@ -440,13 +620,16 @@ const SearchScreen = () => {
         <View key="playlists" style={styles.section}>
           <Text style={styles.sectionTitle}>Playlists</Text>
           <FlatList
-            data={filteredResults.playlists.data.slice(0, 5)}
+            data={filteredResults.playlists.data}
             renderItem={({ item }) => <PlaylistItem item={item} onPress={handlePlaylistPress} />}
             keyExtractor={(item) => `playlist-${item.id || item.title || item.name || Math.random().toString()}`}
             scrollEnabled={false}
           />
         </View>
       );
+    } else {
+      console.log('❌ No playlists to render');
+      console.log('🔍 Playlists data structure:', filteredResults.playlists);
     }
 
     // Podcasts/Shows section
@@ -455,7 +638,7 @@ const SearchScreen = () => {
         <View key="podcasts" style={styles.section}>
           <Text style={styles.sectionTitle}>Podcasts</Text>
           <FlatList
-            data={filteredResults.shows.data.slice(0, 5)}
+            data={filteredResults.shows.data}
             renderItem={({ item }) => <PodcastItem item={item} onPress={handlePodcastPress} />}
             keyExtractor={(item) => `podcast-${item.id || item.title || item.name || Math.random().toString()}`}
             scrollEnabled={false}
@@ -509,25 +692,6 @@ const SearchScreen = () => {
       </View>
     );
   };
-
-  // Example: search Spotify playlists
-  async function searchSpotifyPlaylists(query, token) {
-    const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=10`;
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    return data.playlists?.items || [];
-  }
-
-  async function getSpotifyPlaylistTracks(playlistId, token) {
-    const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    return data.items || [];
-  }
 
   return (
     <View style={styles.container}>
@@ -811,6 +975,18 @@ const styles = StyleSheet.create({
   moreButton: {
     padding: 6,
   },
+  testButton: {
+    backgroundColor: '#1DB954',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  testButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
-export default SearchScreen;
+export default SearchScreen; 

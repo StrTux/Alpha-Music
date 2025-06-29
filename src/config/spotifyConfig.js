@@ -1,8 +1,5 @@
 // Spotify API Configuration
-// This file now uses environment variables from .env file
-// Make sure to create a .env file in your project root with:
-// SPOTIFY_CLIENT_ID=your_actual_client_id
-// SPOTIFY_CLIENT_SECRET=your_actual_client_secret
+// Using environment variables from .env file
 
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@env';
 

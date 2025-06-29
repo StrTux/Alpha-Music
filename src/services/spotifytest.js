@@ -1,35 +1,31 @@
-import fetch from 'node-fetch';
-import 'dotenv/config';
-import { getSpotifyToken } from './getSpotifyToken.js';
+import { SPOTIFY_CONFIG } from '../config/spotifyConfig';
 
-export async function testSpotifyPlaylistSearch() {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+async function testSpotifyAPI() {
+  const clientId = SPOTIFY_CONFIG.CLIENT_ID;
+  const clientSecret = SPOTIFY_CONFIG.CLIENT_SECRET;
+  
+  // Get token using the existing getSpotifyToken function
+  const { getSpotifyToken } = require('./getSpotifyToken');
   const token = await getSpotifyToken(clientId, clientSecret);
 
-  const query = 'arjit singh';
-  const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=5`;
+  console.log('Spotify Token:', token);
 
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+  // Test search
+  const searchUrl = 'https://api.spotify.com/v1/search?q=top%20playlist%20100&type=playlist&limit=5';
+  const searchResponse = await fetch(searchUrl, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
-  const data = await res.json();
+  if (!searchResponse.ok) {
+    throw new Error(`Search failed: ${searchResponse.status}`);
+  }
 
-  const playlists = (data.playlists?.items || []).filter(Boolean);
+  const searchData = await searchResponse.json();
+  console.log('Search Results:', JSON.stringify(searchData, null, 2));
 
-  console.log(`\n🎧 Found ${playlists.length} playlists for "${query}":\n`);
-
-  playlists.forEach((playlist, index) => {
-    console.log(`#${index + 1}`);
-    console.log(`🎵 Name     : ${playlist.name}`);
-    console.log(`👤 Owner    : ${playlist.owner?.display_name}`);
-    console.log(`🆔 ID       : ${playlist.id}`);
-    console.log(`🔗 URL      : ${playlist.external_urls?.spotify}`);
-    console.log(`🖼️ Image    : ${playlist.images?.[0]?.url || 'No image'}`);
-    console.log('---------------------------');
-  });
+  return searchData;
 }
 
-// Run the test
-testSpotifyPlaylistSearch();
+export { testSpotifyAPI };

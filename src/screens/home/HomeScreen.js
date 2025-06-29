@@ -15,6 +15,7 @@ import TrackPlayer from 'react-native-track-player';
 import { useContext } from 'react';
 import { MusicContext } from '../../context/MusicContext';
 import { useNavigation } from '@react-navigation/native';
+import SpotifyService from '../../services/SpotifyService';
 
 import ErrorBoundary from '../../components/common/ErrorBoundary';
 import { useMusic } from '../../context/MusicContext';
@@ -129,11 +130,67 @@ const HomeScreen = () => {
     const fetchTrendingSongs = async () => {
       try {
         setLoading(prev => ({ ...prev, trending: true }));
+
+        // Fetch tracks from the Spotify playlist
+        const spotifyTrending = await SpotifyService.getPlaylistTracks('37i9dQZF1DXbVhgADFy3im');
+        // Fetch JioSaavn trending songs
         const response = await fetch(`${BASE_URL}/get/trending`);
         const data = await response.json();
+        let jioTrending = [];
         if (data.status === 'Success' && data.data) {
-          setTrendingSongs(data.data.filter(item => item.type === 'song' || item.type === 'album'));
+          jioTrending = data.data.filter(item => item.type === 'song' || item.type === 'album');
         }
+
+        // For each Spotify track, search JioSaavn for a match
+        const formattedSpotifyTrending = await Promise.all(
+          spotifyTrending.map(async (track) => {
+            try {
+              const q = encodeURIComponent(`${track.name} ${track.artists}`);
+              const resp = await fetch(`https://strtux-main.vercel.app/search/songs?q=${q}`);
+              const js = await resp.json();
+              const found = js.data?.results?.[0];
+              if (found && found.download_url?.length) {
+                // If found on JioSaavn, return JioSaavn info (with a Spotify reference)
+                return {
+                  ...found,
+                  source: 'jiosaavn',
+                  spotify_id: track.id,
+                  spotify_name: track.name,
+                  spotify_artists: track.artists,
+                  spotify_image: track.image,
+                };
+              } else {
+                // If not found, return Spotify info
+                return {
+                  id: `spotify_${track.id}`,
+                  name: track.name,
+                  subtitle: track.artists,
+                  image: track.image,
+                  source: 'spotify',
+                  spotify_id: track.id,
+                  duration: track.duration,
+                };
+              }
+            } catch {
+              // On error, fallback to Spotify info
+              return {
+                id: `spotify_${track.id}`,
+                name: track.name,
+                subtitle: track.artists,
+                image: track.image,
+                source: 'spotify',
+                spotify_id: track.id,
+                duration: track.duration,
+              };
+            }
+          })
+        );
+
+        // Combine: Spotify playlist (with JioSaavn matches if found) + JioSaavn trending
+        setTrendingSongs([
+          ...formattedSpotifyTrending,
+          ...jioTrending.map(item => ({ ...item, source: 'jiosaavn' })),
+        ]);
       } catch (error) {
         console.error('Error fetching trending songs:', error);
       } finally {
@@ -150,12 +207,43 @@ const HomeScreen = () => {
       try {
         setLoading(prev => ({ ...prev, albums: true }));
         const langCode = getCurrentLanguageCode();
-        let url = `${BASE_URL}/search/albums?q=${langCode === 'all' ? 'top' : langCode}`;
+        let jioQuery = langCode === 'all' ? 'top' : langCode;
+        let spotifyTerms = [
+          langCode === 'all' ? 'top album spotify' : `${langCode} top album spotify`,
+          langCode === 'all' ? 'top album india spotify' : `${langCode} top album india spotify`
+        ];
+
+        // JioSaavn albums
+        let url = `${BASE_URL}/search/albums?q=${jioQuery}`;
         const response = await fetch(url);
         const data = await response.json();
+        let jioAlbums = [];
         if (data.status === 'Success' && data.data && data.data.results) {
-          setTopAlbums(data.data.results);
+          jioAlbums = data.data.results;
         }
+
+        // Spotify albums (search as playlists, since Spotify API doesn't have a direct album search endpoint for public charts)
+        let spotifyAlbums = [];
+        for (const term of spotifyTerms) {
+          const results = await SpotifyService.searchPlaylists(term, 50);
+          spotifyAlbums = spotifyAlbums.concat(results.map(a => ({ ...a, source: 'spotify' })));
+        }
+
+        // Remove duplicates by id
+        const seen = new Set();
+        spotifyAlbums = spotifyAlbums.filter(a => {
+          if (seen.has(a.id)) return false;
+          seen.add(a.id);
+          return true;
+        });
+
+        // Combine both, with a label for source
+        const combined = [
+          ...spotifyAlbums,
+          ...jioAlbums.map(a => ({ ...a, source: 'jiosaavn' })),
+        ];
+
+        setTopAlbums(combined);
       } catch (error) {
         console.error('Error fetching top albums:', error);
       } finally {
@@ -173,11 +261,29 @@ const HomeScreen = () => {
         setLoading(prev => ({ ...prev, playlists: true }));
         const langCode = getCurrentLanguageCode();
         let query = langCode === 'all' ? 'top playlists' : `${langCode} playlists`;
+
+        // JioSaavn playlists (already language-aware)
         const response = await fetch(`${BASE_URL}/search/playlists?q=${query}`);
         const data = await response.json();
+        let jioPlaylists = [];
         if (data.status === 'Success' && data.data && data.data.results) {
-          setTopPlaylists(data.data.results);
+          jioPlaylists = data.data.results;
         }
+
+        // Spotify playlists (now language-aware)
+        let spotifyQuery = 'top playlist 100';
+        if (langCode !== 'all') {
+          spotifyQuery = `${langCode} top playlist 100`;
+        }
+        const spotifyPlaylists = await SpotifyService.searchPlaylists(spotifyQuery, 50);
+
+        // Combine both, with a label for source
+        const combined = [
+          ...spotifyPlaylists.map(p => ({ ...p, source: 'spotify' })),
+          ...jioPlaylists.map(p => ({ ...p, source: 'jiosaavn' })),
+        ];
+
+        setTopPlaylists(combined);
       } catch (error) {
         console.error('Error fetching top playlists:', error);
       } finally {
@@ -232,34 +338,22 @@ const HomeScreen = () => {
   const renderTrendingItem = useCallback(({ item }) => (
     <TouchableOpacity
       style={styles.trendingItem}
-      onPress={() => handlePlayTrendingItem(item)}
-      disabled={loadingItemId === item.id}
-      activeOpacity={0.7}
-    >
-      <HighQualityImage
-        source={getHighQualityImage(item.image)}
-        style={styles.trendingImage}
-        placeholderSource={require('../../assets/placeholder.png')}
-      />
-      <Text style={styles.trendingTitle} numberOfLines={1}>
-        {item.name || item.title}
-      </Text>
-      <Text style={styles.trendingArtist} numberOfLines={1}>
-        {item.subtitle || item.artist || ''}
-      </Text>
-      {loadingItemId === item.id && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="small" color="#1DB954" />
-        </View>
-      )}
-    </TouchableOpacity>
-  ), [handlePlayTrendingItem, loadingItemId]);
-
-  // Render album item
-  const renderAlbumItem = useCallback(({ item }) => (
-    <TouchableOpacity
-      style={styles.trendingItem}
-      onPress={() => navigation.navigate('AlbumScreen', { album: item })}
+      onPress={() => {
+        if (item.source === 'jiosaavn') {
+          // Play JioSaavn song
+          playTrack({
+            id: item.id,
+            url: item.download_url.find(v => v.quality === '320kbps')?.link || item.download_url.pop().link,
+            title: item.name,
+            artist: item.subtitle || item.artist,
+            artwork: item.image,
+            album: item.album,
+            duration: item.duration,
+          });
+        } else {
+          alert('This song is only available on Spotify. Please use Spotify app to play it.');
+        }
+      }}
       disabled={loadingItemId === item.id}
       activeOpacity={0.7}
     >
@@ -272,7 +366,47 @@ const HomeScreen = () => {
         {item.name}
       </Text>
       <Text style={styles.trendingArtist} numberOfLines={1}>
-        {item.subtitle || item.primaryArtists || ''}
+        {item.subtitle}
+      </Text>
+      <Text style={{ color: item.source === 'spotify' ? '#1DB954' : '#fff', fontSize: 10, marginTop: 2 }}>
+        {item.source === 'spotify' ? 'Spotify' : 'JioSaavn'}
+      </Text>
+      {loadingItemId === item.id && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="small" color="#1DB954" />
+        </View>
+      )}
+    </TouchableOpacity>
+  ), [playTrack, loadingItemId]);
+
+  // Render album item
+  const renderAlbumItem = useCallback(({ item }) => (
+    <TouchableOpacity
+      style={styles.trendingItem}
+      onPress={() => {
+        if (item.source === 'spotify') {
+          navigation.navigate('SpotifyPlaylistScreen', {
+            playlistId: item.spotify_id,
+            playlistName: item.title || item.name,
+            playlistImage: item.image,
+          });
+        } else {
+          navigation.navigate('AlbumScreen', { album: item });
+        }
+      }}
+      disabled={loadingItemId === item.id}
+      activeOpacity={0.7}
+    >
+      <HighQualityImage
+        source={getHighQualityImage(item.image)}
+        style={styles.trendingImage}
+        placeholderSource={require('../../assets/placeholder.png')}
+      />
+      <Text style={styles.trendingTitle} numberOfLines={1}>
+        {item.name}
+      </Text>
+      <Text style={{ color: item.source === 'spotify' ? '#ffffffb8' : '#ffffffb8', fontSize: 10, marginTop: 2 }}>
+        {item.source === 'spotify' ? 'Spotify' : 'JioSaavn'}
       </Text>
     </TouchableOpacity>
   ), [navigation, loadingItemId]);
@@ -281,7 +415,17 @@ const HomeScreen = () => {
   const renderPlaylistItem = useCallback(({ item }) => (
     <TouchableOpacity 
       style={styles.trendingItem}
-      onPress={() => navigation.navigate('PlaylistScreen', { playlist: item })}
+      onPress={() => {
+        if (item.source === 'spotify') {
+          navigation.navigate('SpotifyPlaylistScreen', {
+            playlistId: item.spotify_id,
+            playlistName: item.title || item.name,
+            playlistImage: item.image,
+          });
+        } else {
+          navigation.navigate('PlaylistScreen', { playlist: item });
+        }
+      }}
       disabled={loadingItemId === item.id}
       activeOpacity={0.7}
     >
@@ -293,8 +437,11 @@ const HomeScreen = () => {
       <Text style={styles.trendingTitle} numberOfLines={1}>
         {item.name || item.title}
       </Text>
-      <Text style={styles.trendingArtist} numberOfLines={1}>
+      {/* <Text style={styles.trendingArtist} numberOfLines={1}>
         {item.subtitle || item.follower_count ? `${item.follower_count} followers` : ''}
+      </Text> */}
+      <Text style={{ color: item.source === 'spotify' ? '#ffffffb8' : '#ffffffb8', fontSize: 10, marginTop: -0 }}>
+        {item.source === 'spotify' ? 'Spotify' : 'JioSaavn'}
       </Text>
     </TouchableOpacity>
   ), [navigation, loadingItemId]);
@@ -412,70 +559,27 @@ const HomeScreen = () => {
 
   const handlePlayTrendingItem = async (item) => {
     try {
-      // Set loading state for this specific item
       setLoadingItemId(item.id);
-      console.log('handlePlayTrendingItem: item:', item);
 
-      // Create a query using the music name and artist
-      const musicName = item.name || item.title || '';
-      const artistName = item.subtitle || item.artist || '';
-      const query = encodeURIComponent(`${musicName} ${artistName}`);
-      console.log('handlePlayTrendingItem: query:', query);
-
-      // Fetch songs using the API
-      const response = await fetch(`${BASE_URL}/search/songs?q=${query}`);
-      const data = await response.json();
-      console.log('handlePlayTrendingItem: API response:', data);
-
-      if (data.status === 'Success' && data.data && data.data.results && data.data.results.length > 0) {
-        // Get the first song from results
-        const song = data.data.results[0];
-        console.log('handlePlayTrendingItem: song:', song);
-
-        // Extract the high quality download URL (320kbps)
-        let downloadUrl = '';
-        if (song.download_url && Array.isArray(song.download_url)) {
-          // Find the 320kbps version
-          const highQualityVersion = song.download_url.find(version => version.quality === '320kbps');
-          if (highQualityVersion) {
-            downloadUrl = highQualityVersion.link;
-          } else if (song.download_url.length > 0) {
-            // Fallback to the highest quality available
-            downloadUrl = song.download_url[song.download_url.length - 1].link;
-          }
-        }
-        console.log('handlePlayTrendingItem: downloadUrl:', downloadUrl);
-
-        // Safety check for playable URL
-        if (!downloadUrl || !downloadUrl.startsWith('http')) {
-          console.error('Invalid or missing audio URL:', downloadUrl);
-          alert('This song cannot be played due to invalid audio URL.');
-          setLoadingItemId(null);
-          return;
-        }
-
-        // Prepare the track for playing
-        const track = {
-          id: song.id,
-          url: downloadUrl,
-          title: song.name,
-          artist: song.subtitle || song.artist_map?.primary_artists?.[0]?.name || '',
-          artwork: getHighQualityImage(song.image),
-          album: song.album,
-          duration: song.duration
-        };
-        console.log('handlePlayTrendingItem: track:', track);
-
-        // Play the track using the global music context
-        playTrack(track);
-        console.log('Track added to global player:', track);
-      } else {
-        console.error('No songs found for query:', query);
-      }
-    } catch (error) {
-      console.error('Error playing trending item:', error);
+      // Search JioSaavn for the Spotify track
+      const q = encodeURIComponent(`${item.name} ${item.subtitle}`);
+      const resp = await fetch(`https://strtux-main.vercel.app/search/songs?q=${q}`);
+      const js = await resp.json();
+      const found = js.data?.results?.[0];
+      if (!found?.download_url?.length) throw new Error('Not found');
+      const url = found.download_url.find(v => v.quality === '320kbps')?.link || found.download_url.pop().link;
+      playTrack({
+        id: found.id,
+        url,
+        title: found.name,
+        artist: found.subtitle || found.artist,
+        artwork: found.image,
+        album: found.album,
+        duration: found.duration,
+      });
+    } catch {
+      alert('Unable to play this song');
     } finally {
-      // Clear loading state
       setLoadingItemId(null);
     }
   };

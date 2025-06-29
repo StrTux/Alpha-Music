@@ -88,7 +88,9 @@ const TabNavigator = () => {
 
 // Main App Navigation
 const AppNav = () => {
-  const {userToken, isLoading} = useAuth();
+  const auth = useAuth();
+  const userToken = auth?.userToken;
+  const isLoading = auth?.isLoading;
   const [isAppReady, setIsAppReady] = useState(false);
   const navigationRef = useNavigationContainerRef();
   const [currentRoute, setCurrentRoute] = useState();

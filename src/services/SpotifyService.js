@@ -1,7 +1,7 @@
 // Spotify Service for React Native
 // This service handles Spotify API calls for playlist search and track fetching
 
-import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@env';
+import { SPOTIFY_CONFIG } from '../config/spotifyConfig';
 import base64 from 'react-native-base64';
 
 class SpotifyService {
@@ -17,7 +17,7 @@ class SpotifyService {
     }
 
     try {
-      const credentials = base64.encode(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`);
+      const credentials = base64.encode(`${SPOTIFY_CONFIG.CLIENT_ID}:${SPOTIFY_CONFIG.CLIENT_SECRET}`);
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
@@ -44,8 +44,10 @@ class SpotifyService {
   }
 
   // Search Spotify playlists
-  async searchPlaylists(query, limit = 5) {
+  async searchPlaylists(query, limit = 50) {
     try {
+      console.log(`🔍 Searching Spotify playlists for: "${query}" (limit: ${limit})`);
+      
       const token = await this.getAccessToken();
       const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=${limit}`;
 
@@ -58,7 +60,9 @@ class SpotifyService {
       const data = await response.json();
       const playlists = (data.playlists?.items || []).filter(Boolean);
 
-      return playlists.map(playlist => ({
+      console.log(`✅ Found ${playlists.length} Spotify playlists for "${query}"`);
+
+      const formattedPlaylists = playlists.map(playlist => ({
         id: playlist.id,
         name: playlist.name,
         title: playlist.name,
@@ -69,8 +73,12 @@ class SpotifyService {
         type: 'playlist',
         spotify_playlist: true
       }));
+
+      console.log(`📝 Sample playlist: ${formattedPlaylists[0]?.name || 'None'}`);
+      
+      return formattedPlaylists;
     } catch (error) {
-      console.error('Error searching Spotify playlists:', error);
+      console.error('❌ Error searching Spotify playlists:', error);
       return [];
     }
   }

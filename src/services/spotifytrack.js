@@ -1,10 +1,16 @@
-import fetch from 'node-fetch';
-import 'dotenv/config';
-import { getSpotifyToken } from './getSpotifyToken.js';
+import { SPOTIFY_CONFIG } from '../config/spotifyConfig';
 
 async function getAllSpotifyTracks(playlistId) {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const clientId = SPOTIFY_CONFIG.CLIENT_ID;
+  const clientSecret = SPOTIFY_CONFIG.CLIENT_SECRET;
+  
+  if (!clientId || !clientSecret) {
+    console.warn('Spotify credentials not configured. Skipping playlist fetch.');
+    return [];
+  }
+  
+  // Get token using the existing getSpotifyToken function
+  const { getSpotifyToken } = require('./getSpotifyToken');
   const token = await getSpotifyToken(clientId, clientSecret);
 
   let allTracks = [];
@@ -16,28 +22,46 @@ async function getAllSpotifyTracks(playlistId) {
 
     const res = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
     const data = await res.json();
-    const items = data.items?.filter(item => item.track) || [];
 
-    allTracks.push(...items);
+    if (!data.items || data.items.length === 0) {
+      break;
+    }
 
-    if (items.length < limit) break;
+    const tracks = data.items
+      .filter(item => item.track)
+      .map(item => ({
+        id: item.track.id,
+        name: item.track.name,
+        artists: item.track.artists.map(artist => artist.name).join(', '),
+        album: item.track.album.name,
+        duration: item.track.duration_ms,
+        image: item.track.album.images[0]?.url,
+      }));
+
+    allTracks = allTracks.concat(tracks);
     offset += limit;
+
+    if (data.items.length < limit) {
+      break;
+    }
   }
 
   console.log(`\n🎶 Found ${allTracks.length} songs in playlist "${playlistId}":\n`);
 
   allTracks.forEach((item, index) => {
-    const track = item.track;
-    console.log(`#${index + 1} 🎵 ${track.name} - 👤 ${track.artists.map(a => a.name).join(', ')}`);
+    console.log(`#${index + 1} 🎵 ${item.name} - 👤 ${item.artists}`);
   });
 
   return allTracks;
 }
 
-// Run with your playlist ID
-getAllSpotifyTracks('41nDTubwCAj4ioLlSp6qU8');
+export { getAllSpotifyTracks };
