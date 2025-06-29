@@ -448,7 +448,18 @@ const HomeScreen = () => {
 
   // Render artist item
   const renderArtistItem = useCallback(({ item }) => (
-    <TouchableOpacity style={styles.artistItem} activeOpacity={0.7}>
+    <TouchableOpacity 
+      style={styles.artistItem} 
+      activeOpacity={0.7}
+      onPress={() => {
+        navigation.navigate('Artist', { 
+          artist: item,
+          artistName: item.name,
+          artistImage: item.image,
+          artistId: item.id
+        });
+      }}
+    >
       <HighQualityImage
         source={getHighQualityImage(item.image)}
         style={styles.artistImage}
@@ -458,7 +469,7 @@ const HomeScreen = () => {
         {item.name}
       </Text>
     </TouchableOpacity>
-  ), []);
+  ), [navigation]);
 
   // Loading indicator component
   const LoadingIndicator = useCallback(() => (

@@ -141,7 +141,7 @@ const AppNav = () => {
             <Stack.Screen name="Auth" component={AuthNavigator} />
           )}
         </Stack.Navigator>
-        <GlobalMiniPlayer isPlaylistOrAlbumScreen={currentRoute === 'PlaylistScreen' || currentRoute === 'AlbumScreen' || currentRoute === 'SpotifyPlaylistScreen'} />
+        <GlobalMiniPlayer isPlaylistOrAlbumScreen={currentRoute === 'PlaylistScreen' || currentRoute === 'AlbumScreen' || currentRoute === 'SpotifyPlaylistScreen' || currentRoute === 'Artist'} />
       </NavigationContainer>
     </MusicProvider>
   );

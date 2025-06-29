@@ -162,7 +162,6 @@ const SearchScreen = () => {
         if (jioSaavnResponse.status === 'fulfilled' && jioSaavnResponse.value) {
           if (jioSaavnResponse.value.status === 'Success') {
             combinedResults = { ...jioSaavnResponse.value.data };
-            console.log('Music fetched from JioSaavn');
           }
         }
 
@@ -305,6 +304,44 @@ const SearchScreen = () => {
               ...(combinedResults.songs.data || [])
             ];
           }
+        }
+
+        // Filter songs to only include those where the artist matches the search query
+        if (combinedResults.songs && combinedResults.songs.data) {
+          const queryLower = searchQuery.trim().toLowerCase();
+          const originalCount = combinedResults.songs.data.length;
+          
+          // Temporarily disable filtering to show all songs
+          
+          // Keep all songs for now - no filtering
+          // combinedResults.songs.data = combinedResults.songs.data.filter(song => {
+          //   // For JioSaavn songs
+          //   if (song.primary_artists) {
+          //     const artistLower = song.primary_artists.toLowerCase();
+          //     // Split artist names by comma and check each one
+          //     const artistNames = artistLower.split(',').map(name => name.trim());
+          //     const matches = artistNames.some(artistName => 
+          //       artistName.includes(queryLower) || queryLower.includes(artistName)
+          //     );
+          //     console.log(`🎵 JioSaavn: "${song.name}" - "${song.primary_artists}" (${artistLower}) -> ${matches ? '✅' : '❌'}`);
+          //     return matches;
+          //   }
+          //   // For Spotify songs
+          //   if (song.source === 'spotify' && song.primary_artists) {
+          //     const artistLower = song.primary_artists.toLowerCase();
+          //     // Split artist names by comma and check each one
+          //     const artistNames = artistLower.split(',').map(name => name.trim());
+          //     const matches = artistNames.some(artistName => 
+          //       artistName.includes(queryLower) || queryLower.includes(artistName)
+          //     );
+          //     console.log(`🎵 Spotify: "${song.name}" - "${song.primary_artists}" (${artistLower}) -> ${matches ? '✅' : '❌'}`);
+          //     return matches;
+          //   }
+          //   console.log(`🎵 Unknown: "${song.name}" - No artist info -> ❌`);
+          //   return false;
+          // });
+          
+          const filteredCount = combinedResults.songs.data.length;
         }
 
         if (Object.keys(combinedResults).length > 0) {
@@ -627,9 +664,6 @@ const SearchScreen = () => {
           />
         </View>
       );
-    } else {
-      console.log('❌ No playlists to render');
-      console.log('🔍 Playlists data structure:', filteredResults.playlists);
     }
 
     // Podcasts/Shows section
