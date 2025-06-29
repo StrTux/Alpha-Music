@@ -221,3 +221,101 @@ yarn ios
 4. react-native navigation to navigate between different screen throughout the app and stack different screens in order to progress thorugh the app
 5. react-native vector icons to provide icons for music playback control
 6. eslint and prettier to unify code for better readiblity
+
+
+
+
+
+fix this issue i  am  playing this music its not working  for  example  if  i  am    using this   ---  @https://strtux-main.vercel.app/search/albums?q=bhojpuri  this si  the resposnse   --  {
+    "status": "Success",
+    "message": "✅ Search results fetched successfully",
+    "data": {
+        "total": 8897,
+        "start": 1,
+        "results": [
+            {
+                "id": "57619085",
+                "name": "Babuaan (From Sooryavansham)",
+                "subtitle": "Vijay Chauhan, Shubham SBR",
+                "type": "album",
+                "language": "bhojpuri",
+                "play_count": 0,
+                "duration": 0,
+                "explicit": false,
+                "year": 2024,
+                "url": "https://www.jiosaavn.com/album/babuaan-from-sooryavansham/kZFa8seQHog_",
+                "header_desc": "",
+                "list_count": 0,
+                "list_type": "",
+                "image": [
+                    {
+                        "quality": "50x50",
+                        "link": "http://c.saavncdn.com/950/Babuaan-From-Sooryavansham-Bhojpuri-2024-20240831174003-50x50.jpg"
+                    },
+                    {
+                        "quality": "150x150",
+                        "link": "http://c.saavncdn.com/950/Babuaan-From-Sooryavansham-Bhojpuri-2024-20240831174003-150x150.jpg"
+                    },
+                    {
+                        "quality": "500x500",
+                        "link": "http://c.saavncdn.com/950/Babuaan-From-Sooryavansham-Bhojpuri-2024-20240831174003-500x500.jpg"
+                    }
+                ],
+                "artist_map": {
+                    "artists": [
+                        {
+                            "id": "456857",
+                            "name": "Pawan Singh",
+                            "url": "https://www.jiosaavn.com/artist/pawan-singh-songs/i2grD9aGtzw_",
+                            "role": "Singers",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "487866",
+                            "name": "Vijay Chauhan",
+                            "url": "https://www.jiosaavn.com/artist/vijay-chauhan-songs/jMfGKjEkKLM_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "2409737",
+                            "name": "Shilpi Raj",
+                            "url": "https://www.jiosaavn.com/artist/shilpi-raj-songs/wLTlkPcGbXc_",
+                            "role": "Singers",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "9602979",
+                            "name": "Shubham SBR",
+                            "url": "https://www.jiosaavn.com/artist/shubham-sbr-songs/8FH9IIpz0ZQ_",
+                            "role": "Music",
+                            "type": "artist",
+                            "image": ""
+                        }
+                    ],
+                    "featured_artists": [],
+                    "primary_artists": [
+                        {
+                            "id": "487866",
+                            "name": "Vijay Chauhan",
+                            "url": "https://www.jiosaavn.com/artist/vijay-chauhan-songs/jMfGKjEkKLM_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        },
+                        {
+                            "id": "9602979",
+                            "name": "Shubham SBR",
+                            "url": "https://www.jiosaavn.com/artist/shubham-sbr-songs/8FH9IIpz0ZQ_",
+                            "role": "Primary_artists",
+                            "type": "artist",
+                            "image": ""
+                        }
+                    ]
+                },
+                "song_count": 1,
+                "songs": []
+            },
