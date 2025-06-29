@@ -25,6 +25,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import ArtistScreen from '../screens/artist/ArtistScreen';
 import AlbumScreen from '../screens/album/AlbumScreen';
 import PlaylistScreen from '../screens/playlist/PlaylistScreen';
+import SpotifyPlaylistScreen from '../screens/SpotifyPlaylistScreen';
 import AudioSettings from '../screens/settings/AudioSettings';
 import PodcastScreen from '../screens/podcast/PodcastScreen';
 import PodcastCategorieScreen from '../screens/podcast/podcastCategorieScreen';
@@ -130,6 +131,7 @@ const AppNav = () => {
               <Stack.Screen name="Artist" component={ArtistScreen} />
               <Stack.Screen name="AlbumScreen" component={AlbumScreen} />
               <Stack.Screen name="PlaylistScreen" component={PlaylistScreen} />
+              <Stack.Screen name="SpotifyPlaylistScreen" component={SpotifyPlaylistScreen} />
               <Stack.Screen name="AudioSettings" component={AudioSettings} />
               <Stack.Screen name="PodcastCategorieScreen" component={PodcastCategorieScreen} />
             </>
@@ -137,7 +139,7 @@ const AppNav = () => {
             <Stack.Screen name="Auth" component={AuthNavigator} />
           )}
         </Stack.Navigator>
-        <GlobalMiniPlayer isPlaylistOrAlbumScreen={currentRoute === 'PlaylistScreen' || currentRoute === 'AlbumScreen'} />
+        <GlobalMiniPlayer isPlaylistOrAlbumScreen={currentRoute === 'PlaylistScreen' || currentRoute === 'AlbumScreen' || currentRoute === 'SpotifyPlaylistScreen'} />
       </NavigationContainer>
     </MusicProvider>
   );

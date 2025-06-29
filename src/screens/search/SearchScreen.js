@@ -15,9 +15,11 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import apiService from '../../services/ApiService';
+import SpotifyService from '../../services/SpotifyService';
 import { debounce } from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import { useMusic } from '../../context/MusicContext';
+import { getAllSpotifyTracks } from '../services/spotifytrack'; // You may need to expose this for frontend use
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get('window');
@@ -89,9 +91,18 @@ const PlaylistItem = ({ item, onPress }) => (
     />
     <View style={styles.itemInfo}>
       <Text style={styles.itemTitle} numberOfLines={1}>{item.title || item.name}</Text>
-      <Text style={styles.itemSubtitle} numberOfLines={1}>Playlist</Text>
+      <Text style={styles.itemSubtitle} numberOfLines={1}>
+        {item.spotify_playlist ? `Spotify • ${item.owner || 'Playlist'}` : 'Playlist'}
+      </Text>
     </View>
-    <Icon name="chevron-forward" size={20} color="#888888" />
+    <View style={styles.playlistActions}>
+      {item.spotify_playlist && (
+        <View style={styles.spotifyBadge}>
+          <Text style={styles.spotifyText}>SPOTIFY</Text>
+        </View>
+      )}
+      <Icon name="chevron-forward" size={20} color="#888888" />
+    </View>
   </TouchableOpacity>
 );
 
@@ -137,11 +148,36 @@ const SearchScreen = () => {
         const controller = new AbortController();
         setAbortController(controller);
 
-        const response = await apiService.search(searchQuery, 20, controller.signal);
-        
-        if (response && response.status === 'Success') {
-          setResults(response.data);
-          applyFilter(response.data, activeCategory);
+        // Search both JioSaavn and Spotify
+        const [jioSaavnResponse, spotifyPlaylists] = await Promise.allSettled([
+          apiService.search(searchQuery, 20, controller.signal),
+          SpotifyService.searchPlaylists(searchQuery, 5)
+        ]);
+
+        let combinedResults = {};
+
+        // Handle JioSaavn results
+        if (jioSaavnResponse.status === 'fulfilled' && jioSaavnResponse.value) {
+          if (jioSaavnResponse.value.status === 'Success') {
+            combinedResults = { ...jioSaavnResponse.value.data };
+          }
+        }
+
+        // Handle Spotify playlist results
+        if (spotifyPlaylists.status === 'fulfilled' && spotifyPlaylists.value.length > 0) {
+          if (!combinedResults.playlists) {
+            combinedResults.playlists = { data: [] };
+          }
+          // Add Spotify playlists to the beginning
+          combinedResults.playlists.data = [
+            ...spotifyPlaylists.value,
+            ...(combinedResults.playlists.data || [])
+          ];
+        }
+
+        if (Object.keys(combinedResults).length > 0) {
+          setResults(combinedResults);
+          applyFilter(combinedResults, activeCategory);
         } else {
           setError('No results found');
           setResults(null);
@@ -289,7 +325,17 @@ const SearchScreen = () => {
   };
 
   const handlePlaylistPress = (playlist) => {
-    navigation.navigate('PlaylistScreen', { playlist });
+    // If it's a Spotify playlist, navigate to SpotifyPlaylistScreen
+    if (playlist.spotify_playlist && playlist.spotify_id) {
+      navigation.navigate('SpotifyPlaylistScreen', {
+        playlistId: playlist.spotify_id,
+        playlistName: playlist.title || playlist.name,
+        playlistImage: playlist.image,
+      });
+    } else {
+      // fallback for other playlists
+      navigation.navigate('PlaylistScreen', { playlist });
+    }
   };
 
   const handlePodcastPress = (podcast) => {
@@ -463,6 +509,25 @@ const SearchScreen = () => {
       </View>
     );
   };
+
+  // Example: search Spotify playlists
+  async function searchSpotifyPlaylists(query, token) {
+    const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=10`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    return data.playlists?.items || [];
+  }
+
+  async function getSpotifyPlaylistTracks(playlistId, token) {
+    const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    return data.items || [];
+  }
 
   return (
     <View style={styles.container}>
@@ -728,6 +793,20 @@ const styles = StyleSheet.create({
   itemSubtitle: {
     color: '#888',
     fontSize: 13,
+  },
+  playlistActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  spotifyBadge: {
+    padding: 4,
+    borderRadius: 10,
+    backgroundColor: '#1DB954',
+  },
+  spotifyText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   moreButton: {
     padding: 6,
